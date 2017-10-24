@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<search> 
+  
+    
+    <entry>
+      <title><![CDATA[分类测试文章]]></title>
+      <url>/2017/10/24/testcategory/</url>
+      <content type="html"><![CDATA[<h3 id="Test-category"><a href="#Test-category" class="headerlink" title="Test category"></a>Test category</h3>]]></content>
+      
+        <categories>
+            
+            <category> Testing </category>
+            
+        </categories>
+        
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[标签测试文章]]></title>
+      <url>/2017/10/24/testtag/</url>
+      <content type="html"><![CDATA[<h3 id="Test-tags"><a href="#Test-tags" class="headerlink" title="Test tags"></a>Test tags</h3><h3 id="测试代码高亮"><a href="#测试代码高亮" class="headerlink" title="测试代码高亮"></a>测试代码高亮</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();</div><div class="line">		Resource resource = (Resource) resolver.getResource(&quot;classpath:spring/root-context.xml&quot;);</div><div class="line">		System.out.println(resource.getURL());</div><div class="line">		</div><div class="line">		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();</div><div class="line">		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);</div><div class="line">		reader.loadBeanDefinitions(resource);</div><div class="line">		</div><div class="line">		System.out.println(&quot;init bean factory!&quot;);</div><div class="line">		UserService userService = (UserService) beanFactory.getBean(&quot;userService&quot;);</div><div class="line">		System.out.println(userService);</div></pre></td></tr></table></figure>]]></content>
+      
+        
+        <tags>
+            
+            <tag> Testing </tag>
+            
+            <tag> Another Tag </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[article]]></title>
+      <url>/2017/10/24/article/</url>
+      <content type="html"><![CDATA[<p>看到每位大佬都搭了自己的博客。我也尝试搭了下。</p>
+]]></content>
+      
+        
+    </entry>
+    
+  
+  
+</search>
