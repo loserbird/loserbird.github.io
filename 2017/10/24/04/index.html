@@ -68,29 +68,31 @@
 
 
 
-  <meta name="keywords" content="Testing,Another Tag," />
+  <meta name="keywords" content="java,Nio," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Loserbird's Notes" type="application/atom+xml" />
 
 
 
 
 
 
-
-
-
-
-<meta name="description" content="Test tags测试代码高亮1234567891011ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();		Resource resource = (Resource) resolver.getResource(&amp;quot;classpath:spring/root-context.xml&amp;q">
-<meta name="keywords" content="Testing,Another Tag">
+<meta name="description" content="缓冲区的引入是为了减少频繁I/O操作而引起频繁的系统调用（你知道它很慢的），当你操作一个流时，更多的是以缓冲区为单位进行操作，这是相对于用户空间而言。对于内核来说，也需要缓冲区。 假设有一个管道，进程A为管道的写入方，Ｂ为管道的读出方。 假设一开始内核缓冲区是空的，B作为读出方，被阻塞着。然后首先A往管道写入，这时候内核缓冲区由空的状态变到非空状态，内核就会产生一个事件告诉Ｂ该醒来了，这个事件姑且">
+<meta name="keywords" content="java,Nio">
 <meta property="og:type" content="article">
-<meta property="og:title" content="标签测试文章">
-<meta property="og:url" content="http://yoursite.com/2017/10/24/testtag/index.html">
+<meta property="og:title" content="深入浅出epoll">
+<meta property="og:url" content="http://yoursite.com/2017/10/24/04/index.html">
 <meta property="og:site_name" content="Loserbird&#39;s Notes">
-<meta property="og:description" content="Test tags测试代码高亮1234567891011ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();		Resource resource = (Resource) resolver.getResource(&amp;quot;classpath:spring/root-context.xml&amp;q">
+<meta property="og:description" content="缓冲区的引入是为了减少频繁I/O操作而引起频繁的系统调用（你知道它很慢的），当你操作一个流时，更多的是以缓冲区为单位进行操作，这是相对于用户空间而言。对于内核来说，也需要缓冲区。 假设有一个管道，进程A为管道的写入方，Ｂ为管道的读出方。 假设一开始内核缓冲区是空的，B作为读出方，被阻塞着。然后首先A往管道写入，这时候内核缓冲区由空的状态变到非空状态，内核就会产生一个事件告诉Ｂ该醒来了，这个事件姑且">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-10-24T10:22:36.282Z">
+<meta property="og:updated_time" content="2017-10-25T12:11:44.137Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="标签测试文章">
-<meta name="twitter:description" content="Test tags测试代码高亮1234567891011ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();		Resource resource = (Resource) resolver.getResource(&amp;quot;classpath:spring/root-context.xml&amp;q">
+<meta name="twitter:title" content="深入浅出epoll">
+<meta name="twitter:description" content="缓冲区的引入是为了减少频繁I/O操作而引起频繁的系统调用（你知道它很慢的），当你操作一个流时，更多的是以缓冲区为单位进行操作，这是相对于用户空间而言。对于内核来说，也需要缓冲区。 假设有一个管道，进程A为管道的写入方，Ｂ为管道的读出方。 假设一开始内核缓冲区是空的，B作为读出方，被阻塞着。然后首先A往管道写入，这时候内核缓冲区由空的状态变到非空状态，内核就会产生一个事件告诉Ｂ该醒来了，这个事件姑且">
 
 
 
@@ -120,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/10/24/testtag/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/10/24/04/"/>
 
 
 
 
 
-  <title>标签测试文章 | Loserbird's Notes</title>
+  <title>深入浅出epoll | Loserbird's Notes</title>
   
 
 
@@ -187,16 +189,6 @@
               <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
             
             首页
-          </a>
-        </li>
-      
-        
-        <li class="menu-item menu-item-about">
-          <a href="/about/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
           </a>
         </li>
       
@@ -263,7 +255,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/24/testtag/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/24/04/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Loserbird">
@@ -280,7 +272,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">标签测试文章</h1>
+          <h1 class="post-title" itemprop="name headline">深入浅出epoll</h1>
         
 
         <div class="post-meta">
@@ -302,6 +294,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Nio/" itemprop="url" rel="index">
+                    <span itemprop="name">Nio</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -330,13 +344,35 @@
       
 
       
-        <h3 id="Test-tags"><a href="#Test-tags" class="headerlink" title="Test tags"></a>Test tags</h3><h3 id="测试代码高亮"><a href="#测试代码高亮" class="headerlink" title="测试代码高亮"></a>测试代码高亮</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();</div><div class="line">		Resource resource = (Resource) resolver.getResource(&quot;classpath:spring/root-context.xml&quot;);</div><div class="line">		System.out.println(resource.getURL());</div><div class="line">		</div><div class="line">		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();</div><div class="line">		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);</div><div class="line">		reader.loadBeanDefinitions(resource);</div><div class="line">		</div><div class="line">		System.out.println(&quot;init bean factory!&quot;);</div><div class="line">		UserService userService = (UserService) beanFactory.getBean(&quot;userService&quot;);</div><div class="line">		System.out.println(userService);</div></pre></td></tr></table></figure>
+        <p>缓冲区的引入是为了减少频繁I/O操作而引起频繁的系统调用（你知道它很慢的），当你操作一个流时，更多的是以缓冲区为单位进行操作，这是相对于用户空间而言。对于内核来说，也需要缓冲区。</p>
+<p>假设有一个管道，进程A为管道的写入方，Ｂ为管道的读出方。</p>
+<p>假设一开始内核缓冲区是空的，B作为读出方，被阻塞着。然后首先A往管道写入，这时候内核缓冲区由空的状态变到非空状态，内核就会产生一个事件告诉Ｂ该醒来了，这个事件姑且称之为“缓冲区非空”。</p>
+<p>但是“缓冲区非空”事件通知B后，B却还没有读出数据；且内核许诺了不能把写入管道中的数据丢掉这个时候，Ａ写入的数据会滞留在内核缓冲区中，如果内核也缓冲区满了，B仍未开始读数据，最终内核缓冲区会被填满，这个时候会产生一个I/O事件，告诉进程A，你该等等（阻塞）了，我们把这个事件定义为“缓冲区满”。</p>
+<p>假设后来Ｂ终于开始读数据了，于是内核的缓冲区空了出来，这时候内核会告诉A，内核缓冲区有空位了，你可以从长眠中醒来了，继续写数据了，我们把这个事件叫做“缓冲区非满”</p>
+<p>也许事件Y1已经通知了A，但是A也没有数据写入了，而Ｂ继续读出数据，知道内核缓冲区空了。这个时候内核就告诉B，你需要阻塞了！，我们把这个时间定为“缓冲区空”。</p>
+<p>为了避免CPU空转，可以引进了一个代理（一开始有一位叫做select的代理，后来又有一位叫做poll的代理，不过两者的本质是一样的）。这个代理比较厉害，可以同时观察许多流的I/O事件，在空闲的时候，会把当前线程阻塞掉，当有一个或多个流有I/O事件时，就从阻塞态中醒来，于是我们的程序就会轮询一遍所有的流</p>
+<p>上文提到了epoll可以将哪个流发生了什么事件主动通知，而不需要轮询。那么到底是如何实现通知的呢？</p>
+<p>这就和操作系统的原理相关，在内核的最底层是中断，类似系统回调的机制。网卡设备对应一个中断号, 当网卡收到网络端的消息的时候会向CPU发起中断请求, 然后CPU处理该请求. 通过驱动程序 进而操作系统得到通知, 系统然后通知epoll, epoll通知用户代码。它能显著提高程序在大量并发连接中只有少量活跃的情况下的系统CPU利用率，因为它会复用文件描述符集合来传递结果而不用迫使开发者每次等待事件之前都必须重新准备要被侦听的文件描述符集合，另一点原因就是获取事件的时候，它无须遍历整个被侦听的描述符集，只要遍历那些被内核IO事件异步唤醒而加入Ready队列的描述符集合就行了。</p>
+<p>epoll在被内核初始化时（操作系统启动），同时会开辟出epoll自己的内核高速cache区，用于安置每一个我们想监控的socket，这些socket会以红黑树的形式保存在内核cache里，以支持快速的查找、插入、删除。这个内核高速cache区，就是建立连续的物理内存页，然后在之上建立slab层，简单的说，就是物理上分配好你想要的size的内存对象，每次使用时都是使用空闲的已分配好的对象。</p>
+<h3 id="epoll和select的区别"><a href="#epoll和select的区别" class="headerlink" title="epoll和select的区别"></a>epoll和select的区别</h3><p>进程通过将一个或多个fd传递给select或poll系统调用，阻塞在select;这样select/poll可以帮我们侦测许多fd是否就绪；但是select/poll是顺序扫描fd是否就绪，而且支持的fd数量有限。linux还提供了一个epoll系统调用，epoll是基于事件驱动方式，而不是顺序扫描,当有fd就绪时，立即回调函数rollback。</p>
+<p>nio在Linux下，内核版本大于2.6时使用epoll，小于2.6时使用poll</p>
+
       
     </div>
     
     
     
-
+    
+    
+      <div>
+        ﻿<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+      </div>
+    
+    
     
 
     
@@ -376,9 +412,9 @@
       
         <div class="post-tags">
           
-            <a href="/tags/Testing/" rel="tag"># Testing</a>
+            <a href="/tags/java/" rel="tag"><i class="fa fa-tag"></i>java</a>
           
-            <a href="/tags/Another-Tag/" rel="tag"># Another Tag</a>
+            <a href="/tags/Nio/" rel="tag"><i class="fa fa-tag"></i>Nio</a>
           
         </div>
       
@@ -391,8 +427,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/10/24/article/" rel="next" title="article">
-                <i class="fa fa-chevron-left"></i> article
+              <a href="/2017/10/24/02/" rel="next" title="java内存区域与内存溢出异常">
+                <i class="fa fa-chevron-left"></i> java内存区域与内存溢出异常
               </a>
             
           </div>
@@ -401,8 +437,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/10/24/testcategory/" rel="prev" title="分类测试文章">
-                分类测试文章 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/10/24/01/" rel="prev" title="java锁详解">
+                java锁详解 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -421,6 +457,32 @@
 
 
     <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_qzone">QQ空间</a>
+<a class="jiathis_button_tqq">腾讯微博</a>
+<a class="jiathis_button_douban">豆瓣</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=" charset="utf-8"></script>
+<!-- JiaThis Button END -->
       
     </div>
   </div>
@@ -484,7 +546,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -495,7 +557,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -506,7 +568,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -514,6 +576,13 @@
 
           </nav>
 
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
           
 
           <div class="links-of-author motion-element">
@@ -567,7 +636,7 @@
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#Test-tags"><span class="nav-number">1.</span> <span class="nav-text">Test tags</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试代码高亮"><span class="nav-number">2.</span> <span class="nav-text">测试代码高亮</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#epoll和select的区别"><span class="nav-number">1.</span> <span class="nav-text">epoll和select的区别</span></a></li></ol></div>
             
 
           </div>
@@ -587,7 +656,8 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; 2016 - <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -597,6 +667,11 @@
 </div>
 
 
+  <div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
   <div class="powered-by">  个人专属</div>
 
 
@@ -654,6 +729,8 @@
   
 
 
+  
+
 
 
 
@@ -692,6 +769,11 @@
   
   
     <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
   
 
 

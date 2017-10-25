@@ -74,6 +74,8 @@
 
 
 
+  <link rel="alternate" href="/atom.xml" title="Loserbird's Notes" type="application/atom+xml" />
+
 
 
 
@@ -190,16 +192,6 @@
         </li>
       
         
-        <li class="menu-item menu-item-about">
-          <a href="/about/" rel="section">
-            
-              <i class="menu-item-icon fa fa-fw fa-user"></i> <br />
-            
-            关于
-          </a>
-        </li>
-      
-        
         <li class="menu-item menu-item-tags">
           <a href="/tags/" rel="section">
             
@@ -262,7 +254,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/24/testcategory/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/24/03/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Loserbird">
@@ -281,7 +273,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/10/24/testcategory/" itemprop="url">分类测试文章</a></h1>
+                <a class="post-title-link" href="/2017/10/24/03/" itemprop="url">线程池详解</a></h1>
         
 
         <div class="post-meta">
@@ -316,8 +308,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/Testing/" itemprop="url" rel="index">
-                    <span itemprop="name">Testing</span>
+                  <a href="/categories/并发/" itemprop="url" rel="index">
+                    <span itemprop="name">并发</span>
                   </a>
                 </span>
 
@@ -355,7 +347,70 @@
       
         
           
-            <h3 id="Test-category"><a href="#Test-category" class="headerlink" title="Test category"></a>Test category</h3>
+            <p>Executor接口：顶级接口。只有一个方法：</p>
+<blockquote>
+<p>execute(Runnable command)</p>
+</blockquote>
+<p>ThreadPoolExecutor类实现类这个接口，任何Runnable的对象都可以被ThreadPoolExecutor线程池调度。</p>
+<p>通过Executors工厂类可以创建线程池：</p>
+<ul>
+<li>newFixedThreadPool(int nThreads):返回一个固定线程数量的线程池。当有一个新的任务提交时，若有空闲线程则立刻执行，否则将暂存在一个任务队列中，带有线程空闲时再处理。</li>
+<li>new CachedThreadPool():返回一个可根据实际情况调整线程数量的线程池。数量不确定，但若有空闲线程可以复用则优先使用，若没有则会创建新的线程。</li>
+<li>new SingleThreadExecutor():返回只有一个线程的线程池。</li>
+<li>new ScheduledThreadPool(int corePoolSize):返回一个ScheduledExecutorService对象。</li>
+</ul>
+<h3 id="计划任务"><a href="#计划任务" class="headerlink" title="计划任务"></a>计划任务</h3><p>ScheduledExecutorService有两个方法：</p>
+<ul>
+<li>scheduleAtFixedRate(Runnable command, long initialDelay, long period, TimeUnit unit)</li>
+<li>scheduleWithFixedDelay(Runnable command, long initialDelay, long delay, TimeUnit unit)</li>
+</ul>
+<p>前者是按固定的频率周期性的执行，后者是执行完一个任务后隔一段时间再执行一个任务。</p>
+<p>注：如果任务遇到异常，后续的子任务也会停止调度。因此必须保证异常及时被处理。</p>
+<h3 id="核心线程池的内部实现"><a href="#核心线程池的内部实现" class="headerlink" title="核心线程池的内部实现"></a>核心线程池的内部实现</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">ThreadPoolExecutor(int corePoolSize, </div><div class="line">int maximumPoolSize, </div><div class="line">long keepAliveTime, </div><div class="line">TimeUnit unit,</div><div class="line">BlockingQueue&lt;Runnable&gt; workQueue, </div><div class="line">ThreadFactory threadFactory,</div><div class="line">RejectedExecutionHandler handler)</div></pre></td></tr></table></figure>
+<ul>
+<li>corePoolSize:线程池中的线程数量</li>
+<li>maximumPoolSize:线程池中的最大数量</li>
+<li>keepAliveTime:当线程池中数量超过corePoolSize时，多余的空闲线程的存活时间。</li>
+<li>unit:keepAliveTime的单位</li>
+<li>workQueue:任务队列</li>
+<li>threadFactory:线程工厂，用于创建线程。</li>
+<li>handler:拒绝策略。当任务太多来不及处理时，如何拒绝任务。</li>
+</ul>
+<h3 id="可使用的BlockingQueue"><a href="#可使用的BlockingQueue" class="headerlink" title="可使用的BlockingQueue"></a>可使用的BlockingQueue</h3><ul>
+<li>SynchronousQueue:直接提交的队列。没有容量。每一个插入操作都要等待一个相应的删除操作。反之亦是。提交的任务不会被真实的保存。而总是直接将新任务提交给线程执行。如果没有空闲的进程，则尝试创建新的进程，如果达到最大值则执行拒绝策略。</li>
+<li>ArrayBlockingQueue：有界的任务队列。若有新的任务要执行，如果线程数量小于corePoolSize,则会优先创建新的线程。若大于corepoolSize,则加入等待队列。若队列已满，则在不大于maximumPoolsize的前提下创建新的线程。若大于maximumPoolsize则执行拒绝策略。</li>
+<li>LinkedBlockingDeque：无界的任务队列。小于corePoolSize则会生成新的线程执行任务。当达到corePoolSize后，不会继续增加。若后续有新的任务加入，而又无空闲线程，则直接进入等待队列。</li>
+<li>PriorityBlockingQueue：优先任务队列。带有优先级的无界队列。</li>
+</ul>
+<p>两种线程池的创建源码：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">public static ExecutorService newFixedThreadPool(int nThreads) &#123;</div><div class="line">       return new ThreadPoolExecutor(nThreads, nThreads,</div><div class="line">                                     0L, TimeUnit.MILLISECONDS,</div><div class="line">                                     new LinkedBlockingQueue&lt;Runnable&gt;());</div><div class="line">   &#125;</div><div class="line">public static ExecutorService newCachedThreadPool() &#123;</div><div class="line">       return new ThreadPoolExecutor(0, Integer.MAX_VALUE,</div><div class="line">                                     60L, TimeUnit.SECONDS,</div><div class="line">                                     new SynchronousQueue&lt;Runnable&gt;());</div><div class="line">   &#125;</div></pre></td></tr></table></figure></p>
+<h3 id="拒绝策略"><a href="#拒绝策略" class="headerlink" title="拒绝策略"></a>拒绝策略</h3><p>JDK内置的拒绝策略：</p>
+<ul>
+<li>AbortPolicy:直接抛出异常，阻止系统正常工作</li>
+<li>CallerRunsPolicy:只要线程池未关闭，直接在调用者线程中，运行当前被丢弃的任务。</li>
+<li>DiscardOldestPolicy:丢弃最老的一个请求。也就是即将被执行的一个任务，并尝试再次提交当前任务。</li>
+<li>DiscardPolicy：默默丢弃任务，不做任何处理。</li>
+</ul>
+<p>也可以自己扩展拒绝策略：<br>该接口的定义如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public interface RejectedExecutionHandler &#123;</div><div class="line">    void rejectedExecution(Runnable r, ThreadPoolExecutor executor);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>自定义线程创建：<br>ThreadFactory接口的定义如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">public interface ThreadFactory &#123;</div><div class="line">    Thread newThread(Runnable r);</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="扩展线程池"><a href="#扩展线程池" class="headerlink" title="扩展线程池"></a>扩展线程池</h3><p>ThreadPoolExecutor是一个可扩展的线程，它提供了三个方法：<br>beforeExecute(),afterExecute(),terminated()对线程池进行控制。<br>ThreadPoolExecutor.runWorker()方法的部分实现：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div></pre></td><td class="code"><pre><div class="line">try &#123;</div><div class="line">                  beforeExecute(wt, task);</div><div class="line">                  Throwable thrown = null;</div><div class="line">                  try &#123;</div><div class="line">                      task.run();</div><div class="line">                  &#125; catch (RuntimeException x) &#123;</div><div class="line">                      thrown = x; throw x;</div><div class="line">                  &#125; catch (Error x) &#123;</div><div class="line">                      thrown = x; throw x;</div><div class="line">                  &#125; catch (Throwable x) &#123;</div><div class="line">                      thrown = x; throw new Error(x);</div><div class="line">                  &#125; finally &#123;</div><div class="line">                      afterExecute(task, thrown);</div><div class="line">                  &#125;</div></pre></td></tr></table></figure></p>
+<p>可以自己实现这三个方法进行扩展。</p>
+<h3 id="优化线程池线程数量"><a href="#优化线程池线程数量" class="headerlink" title="优化线程池线程数量"></a>优化线程池线程数量</h3><p>只要避免极大或极小的情况，线程池的大小对系统的性能不会影响太大。</p>
+<ul>
+<li>Ncpu = CPU的数量</li>
+<li>Ucpu = 目标CPU的使用率（0&lt;Ucpu&lt;1)</li>
+<li>W/C = 等待时间与计算时间的比率</li>
+<li>为保持处理器达到期望的使用率，最优的池的大小为：<br>Nthreads = Ncpu <em> Ucpu </em>(1+W/C);</li>
+</ul>
+<p>Runtime.getRuntime().availableProcessors():得到可用的CPU数量。</p>
+<h3 id="在线程池中寻找堆栈"><a href="#在线程池中寻找堆栈" class="headerlink" title="在线程池中寻找堆栈"></a>在线程池中寻找堆栈</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">public class DivTask implements Runnable</div><div class="line">		int a,b;</div><div class="line">		public DivTask(int a,int b)&#123;</div><div class="line">			this.a = a;</div><div class="line">			this.b = b;</div><div class="line">		&#125;</div><div class="line">		public void run() &#123;</div><div class="line">			double re = a/b;</div><div class="line">			System.out.println(re);</div><div class="line">		&#125;</div><div class="line">		public static void main(String[] args) &#123;</div><div class="line">			ThreadPoolExecutor poolExecutor = new ThreadPoolExecutor(0, </div><div class="line">					Integer.MAX_VALUE, 0L, TimeUnit.SECONDS, new SynchronousQueue&lt;Runnable&gt;());</div><div class="line">			for(int i=0;i&lt;5;i++)&#123;</div><div class="line">				poolExecutor.submit(new DivTask(100, i));</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	</div><div class="line">&#125;</div></pre></td></tr></table></figure>
+<p>以上程序只会输出4个数字。也不会抛出任何错误。所以线程池可能会“吃掉”程序抛出的错误。可以通过以下方法找回异常堆栈。</p>
+<ol>
+<li>放弃submit,改用execute()方法。</li>
+<li>或者改成：Future re = pools.submit(new DivTask(100,i));re.get();</li>
+</ol>
+<p>但是以上两种方法只是打印出部分异常。而任务具体的提交位置也没有打印出来。为了得到更丰富的异常信息。我们可以重写ThreadPoolExecutor的提交线程的方法。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div></pre></td><td class="code"><pre><div class="line">public class TraceThreadPoolExecutor extends ThreadPoolExecutor&#123;</div><div class="line">	public TraceThreadPoolExecutor(int corePoolSize, int maximumPoolSize, long keepAliveTime, TimeUnit unit,</div><div class="line">			BlockingQueue&lt;Runnable&gt; workQueue) &#123;</div><div class="line">		super(corePoolSize, maximumPoolSize, keepAliveTime, unit, workQueue);</div><div class="line">	&#125;</div><div class="line">	@Override</div><div class="line">	public void execute(Runnable task) &#123;</div><div class="line">		super.execute(wrap(task, clientTrace(), Thread.currentThread().getName()));</div><div class="line">	&#125;</div><div class="line">	@Override</div><div class="line">	public Future&lt;?&gt; submit(Runnable task) &#123;</div><div class="line">		return super.submit(wrap(task, clientTrace(), Thread.currentThread().getName()));</div><div class="line">	&#125;</div><div class="line">	private Exception clientTrace()&#123;</div><div class="line">		return new Exception(&quot;client stack trace&quot;);</div><div class="line">	&#125;</div><div class="line">	private Runnable wrap(final Runnable task,final Exception clientStack,String clientThreadName)&#123;</div><div class="line">		return new Runnable() &#123;</div><div class="line">			public void run() &#123;</div><div class="line">				try &#123;</div><div class="line">					task.run();</div><div class="line">				&#125; catch (Exception e) &#123;</div><div class="line">					clientStack.printStackTrace();</div><div class="line">					try &#123;</div><div class="line">						throw e;</div><div class="line">					&#125; catch (Exception e1) &#123;</div><div class="line">						// TODO Auto-generated catch block</div><div class="line">						e1.printStackTrace();</div><div class="line">					&#125;</div><div class="line">				&#125;</div><div class="line">			&#125;</div><div class="line">		&#125;;</div><div class="line">	&#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>用自定义的线程提交任务便可打印出异常信息。</p>
+
           
         
       
@@ -363,7 +418,9 @@
     
     
     
-
+    
+    
+    
     
 
     
@@ -403,7 +460,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/24/testtag/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/24/01/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Loserbird">
@@ -422,7 +479,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/10/24/testtag/" itemprop="url">标签测试文章</a></h1>
+                <a class="post-title-link" href="/2017/10/24/01/" itemprop="url">java锁详解</a></h1>
         
 
         <div class="post-meta">
@@ -445,6 +502,28 @@
           </span>
 
           
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/并发/" itemprop="url" rel="index">
+                    <span itemprop="name">并发</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
 
           
             
@@ -474,7 +553,136 @@
       
         
           
-            <h3 id="Test-tags"><a href="#Test-tags" class="headerlink" title="Test tags"></a>Test tags</h3><h3 id="测试代码高亮"><a href="#测试代码高亮" class="headerlink" title="测试代码高亮"></a>测试代码高亮</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">ResourcePatternResolver resolver = new PathMatchingResourcePatternResolver();</div><div class="line">		Resource resource = (Resource) resolver.getResource(&quot;classpath:spring/root-context.xml&quot;);</div><div class="line">		System.out.println(resource.getURL());</div><div class="line">		</div><div class="line">		DefaultListableBeanFactory beanFactory = new DefaultListableBeanFactory();</div><div class="line">		XmlBeanDefinitionReader reader = new XmlBeanDefinitionReader(beanFactory);</div><div class="line">		reader.loadBeanDefinitions(resource);</div><div class="line">		</div><div class="line">		System.out.println(&quot;init bean factory!&quot;);</div><div class="line">		UserService userService = (UserService) beanFactory.getBean(&quot;userService&quot;);</div><div class="line">		System.out.println(userService);</div></pre></td></tr></table></figure>
+            <h3 id="java对象头"><a href="#java对象头" class="headerlink" title="java对象头"></a>java对象头</h3><p>锁存在Java对象头里。如果对象是数组类型，则虚拟机用3个Word（字宽）存储对象头，如果对象是非数组类型，则用2字宽存储对象头。在32位虚拟机中，一字宽等于四字节，即32bit。</p>
+<table>
+<thead>
+<tr>
+<th>长度</th>
+<th>内容</th>
+<th>说明</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>32/64bit</td>
+<td>Mark Word</td>
+<td>存储对象的hashCode或锁信息等。</td>
+</tr>
+<tr>
+<td>32/64bit</td>
+<td>Class Metadata Address</td>
+<td>存储到对象类型数据的指针</td>
+</tr>
+<tr>
+<td>32/64bit</td>
+<td>Array length</td>
+<td>数组的长度（如果当前对象是数组）</td>
+</tr>
+</tbody>
+</table>
+<p>Java对象头里的Mark Word里默认存储对象的HashCode，分代年龄和锁标记位。32位JVM的Mark Word的默认存储结构如下：</p>
+<table>
+<thead>
+<tr>
+<th>无锁</th>
+<th>25 bit</th>
+<th>4bit</th>
+<th>1bit是否是偏向锁</th>
+<th>2bit锁标志位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>无锁状态</td>
+<td>对象的hashCode</td>
+<td>对象分代年龄</td>
+<td>0</td>
+<td>01</td>
+</tr>
+</tbody>
+</table>
+<p>在运行期间Mark Word里存储的数据会随着锁标志位的变化而变化。Mark Word可能变化为存储以下4种数据：</p>
+<table>
+<thead>
+<tr>
+<th>锁状态</th>
+<th>锁标志位</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>轻量级锁</td>
+<td>00</td>
+</tr>
+<tr>
+<td>重量级锁</td>
+<td>01</td>
+</tr>
+<tr>
+<td>GC标记</td>
+<td>11</td>
+</tr>
+<tr>
+<td>偏向锁</td>
+<td>01</td>
+</tr>
+</tbody>
+</table>
+<h3 id="偏向锁"><a href="#偏向锁" class="headerlink" title="偏向锁"></a>偏向锁</h3><p>当一个线程访问同步块并获取锁时，会在对象头和栈帧中的锁记录里存储锁偏向的线程ID，以后该线程在进入和退出同步块时不需要花费CAS操作来加锁和解锁，而只需简单的测试一下对象头的Mark Word里是否存储着指向当前线程的偏向锁，如果测试成功，表示线程已经获得了锁，如果测试失败，则需要再测试下Mark Word中偏向锁的标识是否设置成1（表示当前是偏向锁），如果没有设置，则使用CAS竞争锁，如果设置了，则尝试使用CAS将对象头的偏向锁指向当前线程。</p>
+<p>偏向锁的撤销：偏向锁使用了一种等到竞争出现才释放锁的机制，所以当其他线程尝试竞争偏向锁时，持有偏向锁的线程才会释放锁。偏向锁的撤销，需要等待全局安全点（在这个时间点上没有字节码正在执行），它会首先暂停拥有偏向锁的线程，然后检查持有偏向锁的线程是否活着，如果线程不处于活动状态，则将对象头设置成无锁状态，如果线程仍然活着，拥有偏向锁的栈会被执行，遍历偏向对象的锁记录，栈中的锁记录和对象头的Mark Word要么重新偏向于其他线程，要么恢复到无锁或者标记对象不适合作为偏向锁，最后唤醒暂停的线程。</p>
+<p>偏向锁在Java 6和Java 7里是默认启用的。可以通过JVM参数关闭偏向锁-XX:-UseBiasedLocking=false，那么默认会进入轻量级锁状态。</p>
+<h3 id="轻量级锁"><a href="#轻量级锁" class="headerlink" title="轻量级锁"></a>轻量级锁</h3><p>轻量级锁加锁：线程在执行同步块之前，JVM会先在当前线程的栈桢中创建用于存储锁记录的空间，并将对象头中的Mark Word复制到锁记录中，官方称为Displaced Mark Word。然后线程尝试使用CAS将对象头中的Mark Word替换为指向锁记录的指针。如果成功，当前线程获得锁，如果失败，表示其他线程竞争锁，当前线程便尝试使用自旋来获取锁。</p>
+<p>轻量级锁解锁：轻量级解锁时，会使用原子的CAS操作来将Displaced Mark Word替换回到对象头，如果成功，则表示没有竞争发生。如果失败，表示当前锁存在竞争，锁就会膨胀成重量级锁</p>
+<p>一旦锁升级成重量级锁，就不会再恢复到轻量级锁状态。当锁处于这个状态下，其他线程试图获取锁时，都会被阻塞住，当持有锁的线程释放锁之后会唤醒这些线程。</p>
+<h3 id="锁的优缺点对比"><a href="#锁的优缺点对比" class="headerlink" title="锁的优缺点对比"></a>锁的优缺点对比</h3><table>
+<thead>
+<tr>
+<th>锁</th>
+<th>优点</th>
+<th>缺点</th>
+<th>适用场景</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td>偏向锁</td>
+<td>加锁和解锁不需要额外的消耗，和执行非同步方法比仅存在纳秒级的差距。</td>
+<td>如果线程间存在锁竞争，会带来额外的锁撤销的消耗。</td>
+<td>适用于只有一个线程访问同步块场景。</td>
+<td></td>
+</tr>
+<tr>
+<td>轻量级锁</td>
+<td>竞争的线程不会阻塞，提高了程序的响应速度。</td>
+<td>如果始终得不到锁竞争的线程使用自旋会消耗CPU。</td>
+<td>追求响应时间。同步块执行速度非常快。</td>
+</tr>
+<tr>
+<td>重量级锁</td>
+<td>线程竞争不使用自旋，不会消耗CPU。</td>
+<td>线程阻塞，响应时间缓慢。</td>
+<td>追求吞吐量。同步块执行速度较长。</td>
+</tr>
+</tbody>
+</table>
+<h3 id="自旋锁"><a href="#自旋锁" class="headerlink" title="自旋锁"></a>自旋锁</h3><p>当竞争存在时，如果线程可以很快获得锁，那么可以不在OS层挂起线程，让线程做几个空操作（自旋）</p>
+<p>JDK1.6中-XX:+UseSpinning开启</p>
+<p>JDK1.7中，去掉此参数，改为内置实现。</p>
+<h3 id="内置于JVM中的获取锁的优化方法和获取锁的步骤"><a href="#内置于JVM中的获取锁的优化方法和获取锁的步骤" class="headerlink" title="内置于JVM中的获取锁的优化方法和获取锁的步骤"></a>内置于JVM中的获取锁的优化方法和获取锁的步骤</h3><ul>
+<li>偏向锁可用会先尝试偏向锁</li>
+<li>轻量级锁可用会先尝试轻量级锁</li>
+<li>以上都失败，尝试自旋锁</li>
+<li>　再失败，尝试普通锁，使用OS互斥量在操作系统层挂起</li>
+</ul>
+<h3 id="锁消除"><a href="#锁消除" class="headerlink" title="锁消除"></a>锁消除</h3><p>JAVA虚拟机在JTI编译时，通过对运行上下文的扫描，去除不可能存在共享资源竞争的锁。(Vector,StringBuffer)。锁消除涉及到一项技术：逃逸分析。就是观察某一个变量是否会逃出某个作用域。</p>
+<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">-server -XX:+DoEscapeAnalysis -XX:+EliminateLocks</div></pre></td></tr></table></figure>
+<h3 id="锁优化"><a href="#锁优化" class="headerlink" title="锁优化"></a>锁优化</h3><ol>
+<li>减小锁持有时间</li>
+<li>减小锁粒度(ConcurrentHashMap)</li>
+<li>锁分离（LinkedBlockQueue)</li>
+<li>锁粗化</li>
+</ol>
+
           
         
       
@@ -482,7 +690,9 @@
     
     
     
-
+    
+    
+    
     
 
     
@@ -522,7 +732,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/24/article/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/24/04/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Loserbird">
@@ -541,7 +751,7 @@
         
           <h1 class="post-title" itemprop="name headline">
                 
-                <a class="post-title-link" href="/2017/10/24/article/" itemprop="url">article</a></h1>
+                <a class="post-title-link" href="/2017/10/24/04/" itemprop="url">深入浅出epoll</a></h1>
         
 
         <div class="post-meta">
@@ -553,7 +763,7 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-24T16:09:36+08:00">
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-24T18:13:55+08:00">
                 2017-10-24
               </time>
             
@@ -563,6 +773,28 @@
             
           </span>
 
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/Nio/" itemprop="url" rel="index">
+                    <span itemprop="name">Nio</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
           
 
           
@@ -593,7 +825,18 @@
       
         
           
-            <p>看到每位大佬都搭了自己的博客。我也尝试搭了下。</p>
+            <p>缓冲区的引入是为了减少频繁I/O操作而引起频繁的系统调用（你知道它很慢的），当你操作一个流时，更多的是以缓冲区为单位进行操作，这是相对于用户空间而言。对于内核来说，也需要缓冲区。</p>
+<p>假设有一个管道，进程A为管道的写入方，Ｂ为管道的读出方。</p>
+<p>假设一开始内核缓冲区是空的，B作为读出方，被阻塞着。然后首先A往管道写入，这时候内核缓冲区由空的状态变到非空状态，内核就会产生一个事件告诉Ｂ该醒来了，这个事件姑且称之为“缓冲区非空”。</p>
+<p>但是“缓冲区非空”事件通知B后，B却还没有读出数据；且内核许诺了不能把写入管道中的数据丢掉这个时候，Ａ写入的数据会滞留在内核缓冲区中，如果内核也缓冲区满了，B仍未开始读数据，最终内核缓冲区会被填满，这个时候会产生一个I/O事件，告诉进程A，你该等等（阻塞）了，我们把这个事件定义为“缓冲区满”。</p>
+<p>假设后来Ｂ终于开始读数据了，于是内核的缓冲区空了出来，这时候内核会告诉A，内核缓冲区有空位了，你可以从长眠中醒来了，继续写数据了，我们把这个事件叫做“缓冲区非满”</p>
+<p>也许事件Y1已经通知了A，但是A也没有数据写入了，而Ｂ继续读出数据，知道内核缓冲区空了。这个时候内核就告诉B，你需要阻塞了！，我们把这个时间定为“缓冲区空”。</p>
+<p>为了避免CPU空转，可以引进了一个代理（一开始有一位叫做select的代理，后来又有一位叫做poll的代理，不过两者的本质是一样的）。这个代理比较厉害，可以同时观察许多流的I/O事件，在空闲的时候，会把当前线程阻塞掉，当有一个或多个流有I/O事件时，就从阻塞态中醒来，于是我们的程序就会轮询一遍所有的流</p>
+<p>上文提到了epoll可以将哪个流发生了什么事件主动通知，而不需要轮询。那么到底是如何实现通知的呢？</p>
+<p>这就和操作系统的原理相关，在内核的最底层是中断，类似系统回调的机制。网卡设备对应一个中断号, 当网卡收到网络端的消息的时候会向CPU发起中断请求, 然后CPU处理该请求. 通过驱动程序 进而操作系统得到通知, 系统然后通知epoll, epoll通知用户代码。它能显著提高程序在大量并发连接中只有少量活跃的情况下的系统CPU利用率，因为它会复用文件描述符集合来传递结果而不用迫使开发者每次等待事件之前都必须重新准备要被侦听的文件描述符集合，另一点原因就是获取事件的时候，它无须遍历整个被侦听的描述符集，只要遍历那些被内核IO事件异步唤醒而加入Ready队列的描述符集合就行了。</p>
+<p>epoll在被内核初始化时（操作系统启动），同时会开辟出epoll自己的内核高速cache区，用于安置每一个我们想监控的socket，这些socket会以红黑树的形式保存在内核cache里，以支持快速的查找、插入、删除。这个内核高速cache区，就是建立连续的物理内存页，然后在之上建立slab层，简单的说，就是物理上分配好你想要的size的内存对象，每次使用时都是使用空闲的已分配好的对象。</p>
+<h3 id="epoll和select的区别"><a href="#epoll和select的区别" class="headerlink" title="epoll和select的区别"></a>epoll和select的区别</h3><p>进程通过将一个或多个fd传递给select或poll系统调用，阻塞在select;这样select/poll可以帮我们侦测许多fd是否就绪；但是select/poll是顺序扫描fd是否就绪，而且支持的fd数量有限。linux还提供了一个epoll系统调用，epoll是基于事件驱动方式，而不是顺序扫描,当有fd就绪时，立即回调函数rollback。</p>
+<p>nio在Linux下，内核版本大于2.6时使用epoll，小于2.6时使用poll</p>
 
           
         
@@ -602,7 +845,186 @@
     
     
     
+    
+    
+    
+    
 
+    
+
+    
+
+    <footer class="post-footer">
+      
+
+      
+
+      
+
+      
+      
+        <div class="post-eof"></div>
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+    
+      
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/24/02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Loserbird">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Loserbird's Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">
+                
+                <a class="post-title-link" href="/2017/10/24/02/" itemprop="url">java内存区域与内存溢出异常</a></h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-24T16:09:36+08:00">
+                2017-10-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java虚拟机/" itemprop="url" rel="index">
+                    <span itemprop="name">java虚拟机</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        
+          
+            <h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>是一块较小的内存空间，字节码解析器工作时通过改变程序计数器的值来选取下一条需要执行的字节码指令。程序的分支、循环、跳转、异常处理以及线程恢复等基础功能都是依赖程序计数器来完成。<br>Java虚拟机的多线程是通过线程轮流切换并分配处理器执行时间片来实现，因此，为了确保线程切换之后能恢复到正确的执行位置，每条线程都需要一个独立的程序计数器，因此程序计数器是线程私有的内存。<br>程序计数器是java虚拟机中唯一一个没有规定任何内存溢出OutOfMemoryError的内存区域。</p>
+<h3 id="java虚拟机栈"><a href="#java虚拟机栈" class="headerlink" title="java虚拟机栈"></a>java虚拟机栈</h3><p>Java虚拟机栈也是线程私有的，它的生命周期与线程相同。虚拟机栈描述的是java方法执行的内存模型：每个方法被执行时都会同时创建一个栈帧用于存放局部变量表、操作数栈、动态连接和方法出口等信息。每个方法被调用直至执行完成过程，就对应着一个栈帧在虚拟机中从入栈到出栈的过程。</p>
+<p>Java虚拟机栈有两种异常状况：如果线程请求的栈深度大于虚拟机所允许的最大深度时，抛出StackOverflowError异常；如果虚拟机栈可以动态扩展，当扩展时无法申请到足够内存时会抛出OutOfMemoryError异常。</p>
+<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>本地方法栈与java虚拟机栈作用非常类似，其区别是：java虚拟机栈是为虚拟机执行java方法服务，而本地方法栈是为虚拟机调用的操作系统本地方法服务。HotSpot不区分本地方法栈和虚拟机栈。</p>
+<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>堆是java虚拟机所管理的内存区域中最大一块，java堆是被所有线程所共享的一块内存区域，在java虚拟机启动时创建，堆内存的唯一目的就是存放对象实例。几乎所有的对象实例都是在堆分配内存。<br>Java堆是垃圾收集器管理的主要区域，从垃圾回收的角度看，由于现在的垃圾收集器基本都采用的是分代收集算法，因此java堆还可以初步细分为新生代和年老代。<br>Java虚拟机规范规定，堆可以处于物理上不连续的内存空间中，只要逻辑上是连续的即可。在实现上即可以是固定大小的，也可以是可动态扩展的。如果在堆中没有内存完成实例分配，并且堆大小也无法在扩展时，将会抛出OutOfMemoryError异常。</p>
+<h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><p>方法区与堆一样，是被各个线程共享的内存区域，它用于存储已被虚拟机加载的类信息、常量、静态变量、即时编译后的代码等数据。虽然java虚拟机规范把方法区描述为堆的一个逻辑部分，但是方法区却有一个别名叫Non-Heap(非堆)。</p>
+<p>Sun HotSpot虚拟机把方法区叫永久代(Permanent Generation)，其他虚拟机没有永久代的概念。方法区中最重要的部分是运行时常量池。Class文件中除了有类的版本、字段、方法、接口等描述信息外，还有一项信息是常量池，用于存放编译期生成的各种字面变量、符号引用、直接引用等，这些内容将在类加载后存放到方法区的运行时常量池中，另外在运行期间也可以将新的常量存放到常量池中，如String的intern()方法。<br>方法区和运行时常量池在无法满足内存分配时，也会抛出OutOfMemoryError异常。</p>
+<h3 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h3><p>直接内存并不是java虚拟机运行时数据区的一部分，也不是java虚拟机规范中定义的内存区域，但是在java开发中还是会使用到。<br>JDK1.4中新引入的NIO(new I/O)，引入了一种基于通道(Channel)和缓冲区(Buffer)的I/O方式，可以使用操作系统本地方法库直接分配堆外内存，然后通过一个存储在java堆里面的DirectByteBuffer对象作为堆外直接内存的引用进行操作，避免了java堆内存和本地直接内存间的数据拷贝，可以显著提高性能。<br>虽然直接内存并不直接收到java虚拟机内存影响，但是如果java虚拟机各个内存区域总和大于物理内存限制，从而导致直接内存不足，动态扩展时也会抛出OutOfMemoryError异常。</p>
+<h3 id="对象的创建"><a href="#对象的创建" class="headerlink" title="对象的创建"></a>对象的创建</h3><p>虚拟机遇到一条new指令时，首先检查这个指令的参数是否能在常量池中定位到一个类的符号引用，并且检查这个符号引用代表的类是否已被加载，解析和初始化。如果没有则执行类加载过程。</p>
+<p>类加载检查通过后，虚拟机为对象分配内存。对象所需内存的大小在类加载完成后完全确定。假设java堆是绝对规整的，空闲内存与用过的内存中间有个指针，分配的时候就是把指针向空闲空间那边移动一段与对象大小相等的距离。这种分配方式称为“指针碰撞”。如果不是规整的，虚拟机就维护一个列表，记录哪些内存块是可用的，在分配的时候从列表中找到一个足够大的空间划分给对象。并更新列表上的记录。这种分配方式便是”空闲列表“。</p>
+<p>还有一个并发问题，有两种解决方案：</p>
+<ol>
+<li>对分配内存空间的动作进行同步处理。实际上虚拟机采用CAS配上失败重试的方法保证更新操作的原子性。</li>
+<li>把内存分配的动作按照线程划分在不同的空间之中进行。即每个线程在java堆中预先分配一小块内存，称为本地线程分配缓冲TLAB。哪个线程要分配内存，就在哪个线程的TLAB上分配。只有TLAB用完并分配新的TLAB时，才需要同步锁定。虚拟机是否采用TALB,通过参数-XX:+/-UseTLAB设定。</li>
+</ol>
+<p>内存分配完成后虚拟机将分配到的空间都初始化为0值（不包括对象头）。保证对象的实例字段在java代码中可以不赋初始值就可以直接使用。</p>
+<p>接下来，虚拟机对对象进行必要的设置，例如这个对象是哪个类的实例，如何才能找到类的元数据信息，对象的哈希码等信息，这些信息存放在对象的对象头之中。</p>
+<p>执行完new指令之后，接下来会执行<init>方法。进行初始化。</init></p>
+<h3 id="对象的内存布局"><a href="#对象的内存布局" class="headerlink" title="对象的内存布局"></a>对象的内存布局</h3><p>对象在内存中储存的布局可以分为3块区域：对象头，实例数据和对齐填充。</p>
+<p>HotSpot虚拟机的对象头包括两部分信息，第一部分用于存储对象自身运行时数据，如哈希码，GC分代年龄，锁状态标志等。对象头的另外一部分是类型指针。即指向它的类元数据的指针。虚拟机通过这个指针确定对象是哪个类的实例。注意，并不是所有的虚拟机实现都必须在对象数据上保留类型指针。如果是java数组，在对象头还需要有一块用于记录数组长度的数据。因为虚拟机无法从数组的元数据中确定数组的大小。而普通对象可以。</p>
+<p>实例数据才是对象真正储存的有效信息。也是在程序代码中所定义的各种类型的字段内容。HotSpot虚拟机把相同宽度的字段分配在一起。满足这一前提下，父类中定义的变量出现在子类前面。</p>
+<p>对齐填充并不是必然存在的。HotSpot虚拟机的自动内存管理要求对象起始地址必须是8字节的整数倍。也就是说对象的大小必须是8字节的整数倍，而对象头正好是8字节的整数倍。因此当实例数据没有对齐时需要填充。</p>
+<h3 id="对象的访问定位"><a href="#对象的访问定位" class="headerlink" title="对象的访问定位"></a>对象的访问定位</h3><p>java程序需要通过栈上的reference数据来操作堆上的具体对象。reference类型只规定了一个指向对象的引用。目前主流的有使用句柄和直接指针两种。</p>
+<ol>
+<li>使用句柄，java堆中划分出一块内存来作为句柄池，reference储存的就是对象的句柄地址，而句柄包含了对象实例数据与类型数据的各自的具体地址信息。</li>
+<li>直接内存访问，reference存储的是对象地址，而对象里面应该有一个到对象类型数据的指针。</li>
+</ol>
+<h3 id="简单虚拟机参数"><a href="#简单虚拟机参数" class="headerlink" title="简单虚拟机参数"></a>简单虚拟机参数</h3><ul>
+<li>-Xmx,-Xms:堆的最大值与最小值</li>
+<li>-Xss:栈容量</li>
+<li>MaxPermSize:最大方法区容量。</li>
+</ul>
+<h3 id="String-intern"><a href="#String-intern" class="headerlink" title="String.intern()"></a>String.intern()</h3><p>intern方法的作用：如果字符串常量池中已经包含一个等于String对象的字符串，则返回代表池中这个字符创的对象。否则，将此String对象包含的字符串添加到常量池中，并且返回此String对象的引用。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">String a = new String(&quot;ab&quot;);</div><div class="line">String b = new String(&quot;ab&quot;);</div><div class="line">String c = &quot;ab&quot;;</div><div class="line">String d = &quot;a&quot; + &quot;b&quot;;</div><div class="line">String e = &quot;b&quot;;</div><div class="line">String f = &quot;a&quot; + e;</div><div class="line"></div><div class="line">System.out.println(b.intern() == a);//false</div><div class="line">System.out.println(b.intern() == c);//true</div><div class="line">System.out.println(b.intern() == d);//true</div><div class="line">System.out.println(b.intern() == f);//false</div><div class="line">System.out.println(b.intern() == a.intern());//true</div></pre></td></tr></table></figure></p>
+<p>JKD1.6中，intern()方法会在首次遇到的字符串复制到永久代中，返回的也是永久代中这个字符串的引用。而由StrignBuilder创建的字符串实例在java堆上，所以不是同一个引用。JKD1.7不会再复制实例。只是在常量池中记录首次出现的实例引用。</p>
+
+          
+        
+      
+    </div>
+    
+    
+    
+    
+    
+    
     
 
     
@@ -679,7 +1101,7 @@
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">3</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -690,7 +1112,7 @@
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">1</span>
+                  <span class="site-state-item-count">4</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -701,7 +1123,7 @@
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">2</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
@@ -709,6 +1131,13 @@
 
           </nav>
 
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
           
 
           <div class="links-of-author motion-element">
@@ -766,7 +1195,8 @@
 
     <footer id="footer" class="footer">
       <div class="footer-inner">
-        <div class="copyright">&copy; <span itemprop="copyrightYear">2017</span>
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; 2016 - <span itemprop="copyrightYear">2017</span>
   <span class="with-love">
     <i class="fa fa-user"></i>
   </span>
@@ -776,6 +1206,11 @@
 </div>
 
 
+  <div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
   <div class="powered-by">  个人专属</div>
 
 
@@ -833,6 +1268,8 @@
   
 
 
+  
+
 
 
 
@@ -871,6 +1308,11 @@
   
   
     <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
   
 
 

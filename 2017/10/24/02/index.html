@@ -1,0 +1,881 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next pisces use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="虚拟机," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Loserbird's Notes" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="程序计数器是一块较小的内存空间，字节码解析器工作时通过改变程序计数器的值来选取下一条需要执行的字节码指令。程序的分支、循环、跳转、异常处理以及线程恢复等基础功能都是依赖程序计数器来完成。Java虚拟机的多线程是通过线程轮流切换并分配处理器执行时间片来实现，因此，为了确保线程切换之后能恢复到正确的执行位置，每条线程都需要一个独立的程序计数器，因此程序计数器是线程私有的内存。程序计数器是java虚拟机">
+<meta name="keywords" content="虚拟机">
+<meta property="og:type" content="article">
+<meta property="og:title" content="java内存区域与内存溢出异常">
+<meta property="og:url" content="http://yoursite.com/2017/10/24/02/index.html">
+<meta property="og:site_name" content="Loserbird&#39;s Notes">
+<meta property="og:description" content="程序计数器是一块较小的内存空间，字节码解析器工作时通过改变程序计数器的值来选取下一条需要执行的字节码指令。程序的分支、循环、跳转、异常处理以及线程恢复等基础功能都是依赖程序计数器来完成。Java虚拟机的多线程是通过线程轮流切换并分配处理器执行时间片来实现，因此，为了确保线程切换之后能恢复到正确的执行位置，每条线程都需要一个独立的程序计数器，因此程序计数器是线程私有的内存。程序计数器是java虚拟机">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-10-25T12:04:00.328Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="java内存区域与内存溢出异常">
+<meta name="twitter:description" content="程序计数器是一块较小的内存空间，字节码解析器工作时通过改变程序计数器的值来选取下一条需要执行的字节码指令。程序的分支、循环、跳转、异常处理以及线程恢复等基础功能都是依赖程序计数器来完成。Java虚拟机的多线程是通过线程轮流切换并分配处理器执行时间片来实现，因此，为了确保线程切换之后能恢复到正确的执行位置，每条线程都需要一个独立的程序计数器，因此程序计数器是线程私有的内存。程序计数器是java虚拟机">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Pisces',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/10/24/02/"/>
+
+
+
+
+
+  <title>java内存区域与内存溢出异常 | Loserbird's Notes</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Loserbird's Notes</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Quick notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/10/24/02/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Loserbird">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Loserbird's Notes">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">java内存区域与内存溢出异常</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-10-24T16:09:36+08:00">
+                2017-10-24
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/java虚拟机/" itemprop="url" rel="index">
+                    <span itemprop="name">java虚拟机</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="程序计数器"><a href="#程序计数器" class="headerlink" title="程序计数器"></a>程序计数器</h3><p>是一块较小的内存空间，字节码解析器工作时通过改变程序计数器的值来选取下一条需要执行的字节码指令。程序的分支、循环、跳转、异常处理以及线程恢复等基础功能都是依赖程序计数器来完成。<br>Java虚拟机的多线程是通过线程轮流切换并分配处理器执行时间片来实现，因此，为了确保线程切换之后能恢复到正确的执行位置，每条线程都需要一个独立的程序计数器，因此程序计数器是线程私有的内存。<br>程序计数器是java虚拟机中唯一一个没有规定任何内存溢出OutOfMemoryError的内存区域。</p>
+<h3 id="java虚拟机栈"><a href="#java虚拟机栈" class="headerlink" title="java虚拟机栈"></a>java虚拟机栈</h3><p>Java虚拟机栈也是线程私有的，它的生命周期与线程相同。虚拟机栈描述的是java方法执行的内存模型：每个方法被执行时都会同时创建一个栈帧用于存放局部变量表、操作数栈、动态连接和方法出口等信息。每个方法被调用直至执行完成过程，就对应着一个栈帧在虚拟机中从入栈到出栈的过程。</p>
+<p>Java虚拟机栈有两种异常状况：如果线程请求的栈深度大于虚拟机所允许的最大深度时，抛出StackOverflowError异常；如果虚拟机栈可以动态扩展，当扩展时无法申请到足够内存时会抛出OutOfMemoryError异常。</p>
+<h3 id="本地方法栈"><a href="#本地方法栈" class="headerlink" title="本地方法栈"></a>本地方法栈</h3><p>本地方法栈与java虚拟机栈作用非常类似，其区别是：java虚拟机栈是为虚拟机执行java方法服务，而本地方法栈是为虚拟机调用的操作系统本地方法服务。HotSpot不区分本地方法栈和虚拟机栈。</p>
+<h3 id="堆"><a href="#堆" class="headerlink" title="堆"></a>堆</h3><p>堆是java虚拟机所管理的内存区域中最大一块，java堆是被所有线程所共享的一块内存区域，在java虚拟机启动时创建，堆内存的唯一目的就是存放对象实例。几乎所有的对象实例都是在堆分配内存。<br>Java堆是垃圾收集器管理的主要区域，从垃圾回收的角度看，由于现在的垃圾收集器基本都采用的是分代收集算法，因此java堆还可以初步细分为新生代和年老代。<br>Java虚拟机规范规定，堆可以处于物理上不连续的内存空间中，只要逻辑上是连续的即可。在实现上即可以是固定大小的，也可以是可动态扩展的。如果在堆中没有内存完成实例分配，并且堆大小也无法在扩展时，将会抛出OutOfMemoryError异常。</p>
+<h3 id="方法区"><a href="#方法区" class="headerlink" title="方法区"></a>方法区</h3><p>方法区与堆一样，是被各个线程共享的内存区域，它用于存储已被虚拟机加载的类信息、常量、静态变量、即时编译后的代码等数据。虽然java虚拟机规范把方法区描述为堆的一个逻辑部分，但是方法区却有一个别名叫Non-Heap(非堆)。</p>
+<p>Sun HotSpot虚拟机把方法区叫永久代(Permanent Generation)，其他虚拟机没有永久代的概念。方法区中最重要的部分是运行时常量池。Class文件中除了有类的版本、字段、方法、接口等描述信息外，还有一项信息是常量池，用于存放编译期生成的各种字面变量、符号引用、直接引用等，这些内容将在类加载后存放到方法区的运行时常量池中，另外在运行期间也可以将新的常量存放到常量池中，如String的intern()方法。<br>方法区和运行时常量池在无法满足内存分配时，也会抛出OutOfMemoryError异常。</p>
+<h3 id="直接内存"><a href="#直接内存" class="headerlink" title="直接内存"></a>直接内存</h3><p>直接内存并不是java虚拟机运行时数据区的一部分，也不是java虚拟机规范中定义的内存区域，但是在java开发中还是会使用到。<br>JDK1.4中新引入的NIO(new I/O)，引入了一种基于通道(Channel)和缓冲区(Buffer)的I/O方式，可以使用操作系统本地方法库直接分配堆外内存，然后通过一个存储在java堆里面的DirectByteBuffer对象作为堆外直接内存的引用进行操作，避免了java堆内存和本地直接内存间的数据拷贝，可以显著提高性能。<br>虽然直接内存并不直接收到java虚拟机内存影响，但是如果java虚拟机各个内存区域总和大于物理内存限制，从而导致直接内存不足，动态扩展时也会抛出OutOfMemoryError异常。</p>
+<h3 id="对象的创建"><a href="#对象的创建" class="headerlink" title="对象的创建"></a>对象的创建</h3><p>虚拟机遇到一条new指令时，首先检查这个指令的参数是否能在常量池中定位到一个类的符号引用，并且检查这个符号引用代表的类是否已被加载，解析和初始化。如果没有则执行类加载过程。</p>
+<p>类加载检查通过后，虚拟机为对象分配内存。对象所需内存的大小在类加载完成后完全确定。假设java堆是绝对规整的，空闲内存与用过的内存中间有个指针，分配的时候就是把指针向空闲空间那边移动一段与对象大小相等的距离。这种分配方式称为“指针碰撞”。如果不是规整的，虚拟机就维护一个列表，记录哪些内存块是可用的，在分配的时候从列表中找到一个足够大的空间划分给对象。并更新列表上的记录。这种分配方式便是”空闲列表“。</p>
+<p>还有一个并发问题，有两种解决方案：</p>
+<ol>
+<li>对分配内存空间的动作进行同步处理。实际上虚拟机采用CAS配上失败重试的方法保证更新操作的原子性。</li>
+<li>把内存分配的动作按照线程划分在不同的空间之中进行。即每个线程在java堆中预先分配一小块内存，称为本地线程分配缓冲TLAB。哪个线程要分配内存，就在哪个线程的TLAB上分配。只有TLAB用完并分配新的TLAB时，才需要同步锁定。虚拟机是否采用TALB,通过参数-XX:+/-UseTLAB设定。</li>
+</ol>
+<p>内存分配完成后虚拟机将分配到的空间都初始化为0值（不包括对象头）。保证对象的实例字段在java代码中可以不赋初始值就可以直接使用。</p>
+<p>接下来，虚拟机对对象进行必要的设置，例如这个对象是哪个类的实例，如何才能找到类的元数据信息，对象的哈希码等信息，这些信息存放在对象的对象头之中。</p>
+<p>执行完new指令之后，接下来会执行<init>方法。进行初始化。</init></p>
+<h3 id="对象的内存布局"><a href="#对象的内存布局" class="headerlink" title="对象的内存布局"></a>对象的内存布局</h3><p>对象在内存中储存的布局可以分为3块区域：对象头，实例数据和对齐填充。</p>
+<p>HotSpot虚拟机的对象头包括两部分信息，第一部分用于存储对象自身运行时数据，如哈希码，GC分代年龄，锁状态标志等。对象头的另外一部分是类型指针。即指向它的类元数据的指针。虚拟机通过这个指针确定对象是哪个类的实例。注意，并不是所有的虚拟机实现都必须在对象数据上保留类型指针。如果是java数组，在对象头还需要有一块用于记录数组长度的数据。因为虚拟机无法从数组的元数据中确定数组的大小。而普通对象可以。</p>
+<p>实例数据才是对象真正储存的有效信息。也是在程序代码中所定义的各种类型的字段内容。HotSpot虚拟机把相同宽度的字段分配在一起。满足这一前提下，父类中定义的变量出现在子类前面。</p>
+<p>对齐填充并不是必然存在的。HotSpot虚拟机的自动内存管理要求对象起始地址必须是8字节的整数倍。也就是说对象的大小必须是8字节的整数倍，而对象头正好是8字节的整数倍。因此当实例数据没有对齐时需要填充。</p>
+<h3 id="对象的访问定位"><a href="#对象的访问定位" class="headerlink" title="对象的访问定位"></a>对象的访问定位</h3><p>java程序需要通过栈上的reference数据来操作堆上的具体对象。reference类型只规定了一个指向对象的引用。目前主流的有使用句柄和直接指针两种。</p>
+<ol>
+<li>使用句柄，java堆中划分出一块内存来作为句柄池，reference储存的就是对象的句柄地址，而句柄包含了对象实例数据与类型数据的各自的具体地址信息。</li>
+<li>直接内存访问，reference存储的是对象地址，而对象里面应该有一个到对象类型数据的指针。</li>
+</ol>
+<h3 id="简单虚拟机参数"><a href="#简单虚拟机参数" class="headerlink" title="简单虚拟机参数"></a>简单虚拟机参数</h3><ul>
+<li>-Xmx,-Xms:堆的最大值与最小值</li>
+<li>-Xss:栈容量</li>
+<li>MaxPermSize:最大方法区容量。</li>
+</ul>
+<h3 id="String-intern"><a href="#String-intern" class="headerlink" title="String.intern()"></a>String.intern()</h3><p>intern方法的作用：如果字符串常量池中已经包含一个等于String对象的字符串，则返回代表池中这个字符创的对象。否则，将此String对象包含的字符串添加到常量池中，并且返回此String对象的引用。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div></pre></td><td class="code"><pre><div class="line">String a = new String(&quot;ab&quot;);</div><div class="line">String b = new String(&quot;ab&quot;);</div><div class="line">String c = &quot;ab&quot;;</div><div class="line">String d = &quot;a&quot; + &quot;b&quot;;</div><div class="line">String e = &quot;b&quot;;</div><div class="line">String f = &quot;a&quot; + e;</div><div class="line"></div><div class="line">System.out.println(b.intern() == a);//false</div><div class="line">System.out.println(b.intern() == c);//true</div><div class="line">System.out.println(b.intern() == d);//true</div><div class="line">System.out.println(b.intern() == f);//false</div><div class="line">System.out.println(b.intern() == a.intern());//true</div></pre></td></tr></table></figure></p>
+<p>JKD1.6中，intern()方法会在首次遇到的字符串复制到永久代中，返回的也是永久代中这个字符串的引用。而由StrignBuilder创建的字符串实例在java堆上，所以不是同一个引用。JKD1.7不会再复制实例。只是在常量池中记录首次出现的实例引用。</p>
+
+      
+    </div>
+    
+    
+    
+    
+    
+      <div>
+        ﻿<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+      </div>
+    
+    
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Loserbird 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="Loserbird 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/虚拟机/" rel="tag"><i class="fa fa-tag"></i>虚拟机</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/10/24/04/" rel="prev" title="深入浅出epoll">
+                深入浅出epoll <i class="fa fa-chevron-right"></i>
+              </a>
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_qzone">QQ空间</a>
+<a class="jiathis_button_tqq">腾讯微博</a>
+<a class="jiathis_button_douban">豆瓣</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Loserbird" />
+            
+              <p class="site-author-name" itemprop="name">Loserbird</p>
+              <p class="site-description motion-element" itemprop="description">to be free</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">6</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/loserbird" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://twitter.com/yourname" target="_blank" title="Twitter">
+                    
+                      <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="http://weibo.com/your-user-name" target="_blank" title="微博">
+                    
+                      <i class="fa fa-fw fa-globe"></i>微博</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="http://www.zhihu.com/people/your-user-name" target="_blank" title="知乎">
+                    
+                      <i class="fa fa-fw fa-globe"></i>知乎</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#程序计数器"><span class="nav-number">1.</span> <span class="nav-text">程序计数器</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#java虚拟机栈"><span class="nav-number">2.</span> <span class="nav-text">java虚拟机栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#本地方法栈"><span class="nav-number">3.</span> <span class="nav-text">本地方法栈</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#堆"><span class="nav-number">4.</span> <span class="nav-text">堆</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#方法区"><span class="nav-number">5.</span> <span class="nav-text">方法区</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#直接内存"><span class="nav-number">6.</span> <span class="nav-text">直接内存</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象的创建"><span class="nav-number">7.</span> <span class="nav-text">对象的创建</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象的内存布局"><span class="nav-number">8.</span> <span class="nav-text">对象的内存布局</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#对象的访问定位"><span class="nav-number">9.</span> <span class="nav-text">对象的访问定位</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#简单虚拟机参数"><span class="nav-number">10.</span> <span class="nav-text">简单虚拟机参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#String-intern"><span class="nav-number">11.</span> <span class="nav-text">String.intern()</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; 2016 - <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Loserbird</span>
+
+  
+</div>
+
+
+  <div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+  <div class="powered-by">  个人专属</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">
+    博客-Loserbird
+  </div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+
+  <script type="text/javascript" src="/js/src/affix.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/schemes/pisces.js?v=5.1.3"></script>
+
+
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
