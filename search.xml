@@ -3,6 +3,52 @@
   
     
     <entry>
+      <title><![CDATA[maven打包技巧]]></title>
+      <url>/2017/11/10/maven%E6%89%93%E5%8C%85/</url>
+      <content type="html"><![CDATA[<h3 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h3><p>中央仓库：<br><code>http://repo1.maven.org/maven2</code></p>
+<p>由于历史原因，maven的compile插件默认只支持编译java1.3,因此需要配置该插件使其支持java5.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&lt;plugins&gt;</div><div class="line">     &lt;plugin&gt;</div><div class="line">       &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;</div><div class="line">       &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;</div><div class="line">       &lt;configuration&gt;</div><div class="line">         &lt;source&gt;1.5&lt;/source&gt;</div><div class="line">         &lt;target&gt;1.5&lt;/target&gt;</div><div class="line">       &lt;/configuration&gt;</div><div class="line">     &lt;/plugin&gt;</div><div class="line">   &lt;/plugins&gt;</div></pre></td></tr></table></figure></p>
+<p>surefire是maven中负责执行测试的插件。surefire:test任务运行测试。</p>
+<h3 id="生成可执行jar"><a href="#生成可执行jar" class="headerlink" title="生成可执行jar"></a>生成可执行jar</h3><p>默认打包生成的jar是不能执行的。可以利用利用插件maven shade plugin来配置。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">&lt;plugin&gt;  </div><div class="line">    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;  </div><div class="line">    &lt;artifactId&gt;maven-shade-plugin&lt;/artifactId&gt;  </div><div class="line">    &lt;version&gt;1.2.1&lt;/version&gt;  </div><div class="line">    &lt;executions&gt;  </div><div class="line">        &lt;execution&gt;  </div><div class="line">            &lt;phase&gt;package&lt;/phase&gt;  </div><div class="line">            &lt;goals&gt;  </div><div class="line">                &lt;goal&gt;shade&lt;/goal&gt;  </div><div class="line">            &lt;/goals&gt;  </div><div class="line">            &lt;configuration&gt;  </div><div class="line">                &lt;transformers&gt;  </div><div class="line">                    &lt;transformer  </div><div class="line">                        implementation=&quot;org.apache.maven.plugins.shade.resource.ManifestResourceTransformer&quot;&gt;  </div><div class="line">                        &lt;mainClass&gt;com.chenzhou.examples.Main&lt;/mainClass&gt;  </div><div class="line">                    &lt;/transformer&gt;</div><div class="line">                &lt;/transformers&gt;  </div><div class="line">            &lt;/configuration&gt;  </div><div class="line">        &lt;/execution&gt;  </div><div class="line">    &lt;/executions&gt;  </div><div class="line">&lt;/plugin&gt;</div></pre></td></tr></table></figure></p>
+<p>项目打包时会将main-class的信息放到jar包里的MAINFEST.MF中。在target目录下会生成两个jar包。一个是可运行jar，一个是原始jar.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">java -jar xxx.jar</div></pre></td></tr></table></figure></p>
+<h3 id="使用Archetype生成项目骨架"><a href="#使用Archetype生成项目骨架" class="headerlink" title="使用Archetype生成项目骨架"></a>使用Archetype生成项目骨架</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn archetype:generate</div></pre></td></tr></table></figure>
+<h3 id="dependency-中的-classifier属性"><a href="#dependency-中的-classifier属性" class="headerlink" title="dependency 中的 classifier属性"></a>dependency 中的 classifier属性</h3><p>classifier元素用来帮助定义构件输出的一些附属构件。附属构件与主构件对应，比如主构件是 kimi-app-2.0.0.jar 该项目可能还会通过使用一些插件生成 如 kimi-app-2.0.0-javadoc.jar 、 kimi-app-2.0.0-sources.jar 这样两个附属构件。这时候，javadoc,sources就是这两个附属构件的classifier,这样附属构件也就拥有了自己唯一的坐标。</p>
+<p>不能直接定义项目的 classifer,因为附属构件不是项目直接默认生成的，而是由附加的插件帮助生成的。</p>
+<p>classifier的用途在于:</p>
+<ol>
+<li>maven download  javadoc / sources jar包的时候</li>
+<li>引入依赖的时候,有些jar包提供了不同jdk版本的jar包，例如json-lib。这时要定义classifier<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt;</div><div class="line">            &lt;groupId&gt;net.sf.json-lib&lt;/groupId&gt;</div><div class="line">            &lt;artifactId&gt;json-lib&lt;/artifactId&gt;</div><div class="line">            &lt;version&gt;2.4&lt;/version&gt;</div><div class="line">            &lt;classifier&gt;jdk15&lt;/classifier&gt; </div><div class="line">        &lt;/dependency&gt;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="为项目生成源码包和javadoc"><a href="#为项目生成源码包和javadoc" class="headerlink" title="为项目生成源码包和javadoc"></a>为项目生成源码包和javadoc</h3><p>使用插件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">&lt;plugin&gt;  </div><div class="line">    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;  </div><div class="line">    &lt;artifactId&gt;maven-source-plugin&lt;/artifactId&gt;  </div><div class="line">    &lt;version&gt;2.1.2&lt;/version&gt;  </div><div class="line">    &lt;executions&gt;  </div><div class="line">      &lt;execution&gt;  </div><div class="line">        &lt;id&gt;attach-sources&lt;/id&gt;  </div><div class="line">        &lt;phase&gt;package&lt;/phase&gt;  </div><div class="line">        &lt;goals&gt;  </div><div class="line">          &lt;goal&gt;jar-no-fork&lt;/goal&gt;  </div><div class="line">        &lt;/goals&gt;  </div><div class="line">      &lt;/execution&gt;  </div><div class="line">    &lt;/executions&gt;  </div><div class="line">  &lt;/plugin&gt;  </div><div class="line">  </div><div class="line">  &lt;plugin&gt;            </div><div class="line">    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;  </div><div class="line">    &lt;artifactId&gt;maven-javadoc-plugin&lt;/artifactId&gt;  </div><div class="line">    &lt;version&gt;2.7&lt;/version&gt;  </div><div class="line">    &lt;executions&gt;  </div><div class="line">      &lt;execution&gt;  </div><div class="line">        &lt;id&gt;attach-javadocs&lt;/id&gt;  </div><div class="line">          &lt;goals&gt;  </div><div class="line">            &lt;goal&gt;jar&lt;/goal&gt;  </div><div class="line">          &lt;/goals&gt;  </div><div class="line">      &lt;/execution&gt;  </div><div class="line">    &lt;/executions&gt;  </div><div class="line">  &lt;/plugin&gt;</div></pre></td></tr></table></figure></p>
+<h3 id="自定义打包格式"><a href="#自定义打包格式" class="headerlink" title="自定义打包格式"></a>自定义打包格式</h3><p>实际的软件项目常常会有更复杂的打包需求，例如我们可能需要为客户提供一份产品的分发包，这个包不仅仅包含项目的字节码文件，还得包含依赖以及相关脚本文件以方便客户解压后就能运行，此外分发包还得包含一些必要的文档。这时项目的源码目录结构大致是这样的：<br>pom.xml<br>src/main/java/<br>src/main/resources/<br>src/test/java/<br>src/test/resources/<br>src/main/scripts/<br>src/main/assembly/<br>README.txt</p>
+<p>src/main/assembly/会包含一个打包描述文件assembly.xml<br>我们希望最终生成一个zip格式的分发包，它包含如下的一个结构：<br>bin/<br>lib/<br>README.txt<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">&lt;assembly&gt;  </div><div class="line">  &lt;id&gt;bin&lt;/id&gt;  </div><div class="line">  &lt;formats&gt;  </div><div class="line">    &lt;format&gt;zip&lt;/format&gt;  </div><div class="line">  &lt;/formats&gt;  </div><div class="line">  &lt;dependencySets&gt;  </div><div class="line">    &lt;dependencySet&gt;  </div><div class="line">      &lt;useProjectArtifact&gt;true&lt;/useProjectArtifact&gt;  </div><div class="line">      &lt;outputDirectory&gt;lib&lt;/outputDirectory&gt;  </div><div class="line">    &lt;/dependencySet&gt;  </div><div class="line">  &lt;/dependencySets&gt;  </div><div class="line">  &lt;fileSets&gt;  </div><div class="line">    &lt;fileSet&gt;  </div><div class="line">      &lt;outputDirectory&gt;/&lt;/outputDirectory&gt;  </div><div class="line">      &lt;includes&gt;  </div><div class="line">        &lt;include&gt;README.txt&lt;/include&gt;  </div><div class="line">      &lt;/includes&gt;  </div><div class="line">    &lt;/fileSet&gt;  </div><div class="line">    &lt;fileSet&gt;  </div><div class="line">      &lt;directory&gt;src/main/scripts&lt;/directory&gt;  </div><div class="line">      &lt;outputDirectory&gt;/bin&lt;/outputDirectory&gt;  </div><div class="line">      &lt;includes&gt;  </div><div class="line">        &lt;include&gt;run.sh&lt;/include&gt;  </div><div class="line">        &lt;include&gt;run.bat&lt;/include&gt;  </div><div class="line">      &lt;/includes&gt;  </div><div class="line">    &lt;/fileSet&gt;  </div><div class="line">  &lt;/fileSets&gt;  </div><div class="line">&lt;/assembly&gt;</div></pre></td></tr></table></figure></p>
+<ul>
+<li>首先这个assembly.xml文件的id对应了其最终生成文件的classifier。</li>
+<li>其次formats定义打包生成的文件格式，这里是zip。因此结合id我们会得到一个名为hello-world-1.0-bin.zip的文件。（假设artifactId为hello-world，version为1.0）</li>
+<li>dependencySets用来定义选择依赖并定义最终打包到什么目录，这里我们声明的一个depenencySet默认包含所有所有 依赖，而useProjectArtifact表示将项目本身生成的构件也包含在内，最终打包至输出包内的lib路径下（由 outputDirectory指定）。</li>
+<li>fileSets允许用户通过文件或目录的粒度来控制打包。这里的第一个fileSet打包README.txt文件至包的根目录下，第二个fileSet则将src/main/scripts下的run.sh和run.bat文件打包至输出包的bin目录下</li>
+</ul>
+<p>最后，我们需要配置maven-assembly-plugin使用打包描述文件，并绑定生命周期阶段使其自动执行打包操作：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">&lt;plugin&gt;  </div><div class="line">    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;  </div><div class="line">    &lt;artifactId&gt;maven-assembly-plugin&lt;/artifactId&gt;  </div><div class="line">    &lt;version&gt;2.2.1&lt;/version&gt;  </div><div class="line">    &lt;configuration&gt;  </div><div class="line">      &lt;descriptors&gt;  </div><div class="line">        &lt;descriptor&gt;src/main/assembly/assembly.xml&lt;/descriptor&gt;  </div><div class="line">      &lt;/descriptors&gt;  </div><div class="line">    &lt;/configuration&gt;  </div><div class="line">    &lt;executions&gt;  </div><div class="line">      &lt;execution&gt;  </div><div class="line">        &lt;id&gt;make-assembly&lt;/id&gt;  </div><div class="line">        &lt;phase&gt;package&lt;/phase&gt;  </div><div class="line">        &lt;goals&gt;  </div><div class="line">          &lt;goal&gt;single&lt;/goal&gt;  </div><div class="line">        &lt;/goals&gt;  </div><div class="line">      &lt;/execution&gt;  </div><div class="line">    &lt;/executions&gt;  </div><div class="line">  &lt;/plugin&gt;</div></pre></td></tr></table></figure></p>
+]]></content>
+      
+        <categories>
+            
+            <category> maven </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> java </tag>
+            
+            <tag> maven </tag>
+            
+        </tags>
+        
+    </entry>
+    
+    <entry>
       <title><![CDATA[线程池详解]]></title>
       <url>/2017/10/24/03/</url>
       <content type="html"><![CDATA[<p>Executor接口：顶级接口。只有一个方法：</p>
@@ -76,6 +122,40 @@
             
         </categories>
         
+        
+    </entry>
+    
+    <entry>
+      <title><![CDATA[深入浅出epoll]]></title>
+      <url>/2017/10/24/04/</url>
+      <content type="html"><![CDATA[<p>缓冲区的引入是为了减少频繁I/O操作而引起频繁的系统调用（你知道它很慢的），当你操作一个流时，更多的是以缓冲区为单位进行操作，这是相对于用户空间而言。对于内核来说，也需要缓冲区。</p>
+<p>假设有一个管道，进程A为管道的写入方，Ｂ为管道的读出方。</p>
+<p>假设一开始内核缓冲区是空的，B作为读出方，被阻塞着。然后首先A往管道写入，这时候内核缓冲区由空的状态变到非空状态，内核就会产生一个事件告诉Ｂ该醒来了，这个事件姑且称之为“缓冲区非空”。</p>
+<p>但是“缓冲区非空”事件通知B后，B却还没有读出数据；且内核许诺了不能把写入管道中的数据丢掉这个时候，Ａ写入的数据会滞留在内核缓冲区中，如果内核也缓冲区满了，B仍未开始读数据，最终内核缓冲区会被填满，这个时候会产生一个I/O事件，告诉进程A，你该等等（阻塞）了，我们把这个事件定义为“缓冲区满”。</p>
+<p>假设后来Ｂ终于开始读数据了，于是内核的缓冲区空了出来，这时候内核会告诉A，内核缓冲区有空位了，你可以从长眠中醒来了，继续写数据了，我们把这个事件叫做“缓冲区非满”</p>
+<p>也许事件Y1已经通知了A，但是A也没有数据写入了，而Ｂ继续读出数据，知道内核缓冲区空了。这个时候内核就告诉B，你需要阻塞了！，我们把这个时间定为“缓冲区空”。</p>
+<p>为了避免CPU空转，可以引进了一个代理（一开始有一位叫做select的代理，后来又有一位叫做poll的代理，不过两者的本质是一样的）。这个代理比较厉害，可以同时观察许多流的I/O事件，在空闲的时候，会把当前线程阻塞掉，当有一个或多个流有I/O事件时，就从阻塞态中醒来，于是我们的程序就会轮询一遍所有的流</p>
+<p>上文提到了epoll可以将哪个流发生了什么事件主动通知，而不需要轮询。那么到底是如何实现通知的呢？</p>
+<p>这就和操作系统的原理相关，在内核的最底层是中断，类似系统回调的机制。网卡设备对应一个中断号, 当网卡收到网络端的消息的时候会向CPU发起中断请求, 然后CPU处理该请求. 通过驱动程序 进而操作系统得到通知, 系统然后通知epoll, epoll通知用户代码。它能显著提高程序在大量并发连接中只有少量活跃的情况下的系统CPU利用率，因为它会复用文件描述符集合来传递结果而不用迫使开发者每次等待事件之前都必须重新准备要被侦听的文件描述符集合，另一点原因就是获取事件的时候，它无须遍历整个被侦听的描述符集，只要遍历那些被内核IO事件异步唤醒而加入Ready队列的描述符集合就行了。</p>
+<p>epoll在被内核初始化时（操作系统启动），同时会开辟出epoll自己的内核高速cache区，用于安置每一个我们想监控的socket，这些socket会以红黑树的形式保存在内核cache里，以支持快速的查找、插入、删除。这个内核高速cache区，就是建立连续的物理内存页，然后在之上建立slab层，简单的说，就是物理上分配好你想要的size的内存对象，每次使用时都是使用空闲的已分配好的对象。</p>
+<h3 id="epoll和select的区别"><a href="#epoll和select的区别" class="headerlink" title="epoll和select的区别"></a>epoll和select的区别</h3><p>进程通过将一个或多个fd传递给select或poll系统调用，阻塞在select;这样select/poll可以帮我们侦测许多fd是否就绪；但是select/poll是顺序扫描fd是否就绪，而且支持的fd数量有限。linux还提供了一个epoll系统调用，epoll是基于事件驱动方式，而不是顺序扫描,当有fd就绪时，立即回调函数rollback。</p>
+<p>nio在Linux下，内核版本大于2.6时使用epoll，小于2.6时使用poll</p>
+]]></content>
+      
+        <categories>
+            
+            <category> Nio </category>
+            
+        </categories>
+        
+        
+        <tags>
+            
+            <tag> Nio </tag>
+            
+            <tag> java </tag>
+            
+        </tags>
         
     </entry>
     
@@ -225,40 +305,6 @@
             <tag> java </tag>
             
             <tag> 并发 </tag>
-            
-        </tags>
-        
-    </entry>
-    
-    <entry>
-      <title><![CDATA[深入浅出epoll]]></title>
-      <url>/2017/10/24/04/</url>
-      <content type="html"><![CDATA[<p>缓冲区的引入是为了减少频繁I/O操作而引起频繁的系统调用（你知道它很慢的），当你操作一个流时，更多的是以缓冲区为单位进行操作，这是相对于用户空间而言。对于内核来说，也需要缓冲区。</p>
-<p>假设有一个管道，进程A为管道的写入方，Ｂ为管道的读出方。</p>
-<p>假设一开始内核缓冲区是空的，B作为读出方，被阻塞着。然后首先A往管道写入，这时候内核缓冲区由空的状态变到非空状态，内核就会产生一个事件告诉Ｂ该醒来了，这个事件姑且称之为“缓冲区非空”。</p>
-<p>但是“缓冲区非空”事件通知B后，B却还没有读出数据；且内核许诺了不能把写入管道中的数据丢掉这个时候，Ａ写入的数据会滞留在内核缓冲区中，如果内核也缓冲区满了，B仍未开始读数据，最终内核缓冲区会被填满，这个时候会产生一个I/O事件，告诉进程A，你该等等（阻塞）了，我们把这个事件定义为“缓冲区满”。</p>
-<p>假设后来Ｂ终于开始读数据了，于是内核的缓冲区空了出来，这时候内核会告诉A，内核缓冲区有空位了，你可以从长眠中醒来了，继续写数据了，我们把这个事件叫做“缓冲区非满”</p>
-<p>也许事件Y1已经通知了A，但是A也没有数据写入了，而Ｂ继续读出数据，知道内核缓冲区空了。这个时候内核就告诉B，你需要阻塞了！，我们把这个时间定为“缓冲区空”。</p>
-<p>为了避免CPU空转，可以引进了一个代理（一开始有一位叫做select的代理，后来又有一位叫做poll的代理，不过两者的本质是一样的）。这个代理比较厉害，可以同时观察许多流的I/O事件，在空闲的时候，会把当前线程阻塞掉，当有一个或多个流有I/O事件时，就从阻塞态中醒来，于是我们的程序就会轮询一遍所有的流</p>
-<p>上文提到了epoll可以将哪个流发生了什么事件主动通知，而不需要轮询。那么到底是如何实现通知的呢？</p>
-<p>这就和操作系统的原理相关，在内核的最底层是中断，类似系统回调的机制。网卡设备对应一个中断号, 当网卡收到网络端的消息的时候会向CPU发起中断请求, 然后CPU处理该请求. 通过驱动程序 进而操作系统得到通知, 系统然后通知epoll, epoll通知用户代码。它能显著提高程序在大量并发连接中只有少量活跃的情况下的系统CPU利用率，因为它会复用文件描述符集合来传递结果而不用迫使开发者每次等待事件之前都必须重新准备要被侦听的文件描述符集合，另一点原因就是获取事件的时候，它无须遍历整个被侦听的描述符集，只要遍历那些被内核IO事件异步唤醒而加入Ready队列的描述符集合就行了。</p>
-<p>epoll在被内核初始化时（操作系统启动），同时会开辟出epoll自己的内核高速cache区，用于安置每一个我们想监控的socket，这些socket会以红黑树的形式保存在内核cache里，以支持快速的查找、插入、删除。这个内核高速cache区，就是建立连续的物理内存页，然后在之上建立slab层，简单的说，就是物理上分配好你想要的size的内存对象，每次使用时都是使用空闲的已分配好的对象。</p>
-<h3 id="epoll和select的区别"><a href="#epoll和select的区别" class="headerlink" title="epoll和select的区别"></a>epoll和select的区别</h3><p>进程通过将一个或多个fd传递给select或poll系统调用，阻塞在select;这样select/poll可以帮我们侦测许多fd是否就绪；但是select/poll是顺序扫描fd是否就绪，而且支持的fd数量有限。linux还提供了一个epoll系统调用，epoll是基于事件驱动方式，而不是顺序扫描,当有fd就绪时，立即回调函数rollback。</p>
-<p>nio在Linux下，内核版本大于2.6时使用epoll，小于2.6时使用poll</p>
-]]></content>
-      
-        <categories>
-            
-            <category> Nio </category>
-            
-        </categories>
-        
-        
-        <tags>
-            
-            <tag> java </tag>
-            
-            <tag> Nio </tag>
             
         </tags>
         

@@ -1,0 +1,866 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="java,maven," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Loserbird's Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="基础知识中央仓库：http://repo1.maven.org/maven2 由于历史原因，maven的compile插件默认只支持编译java1.3,因此需要配置该插件使其支持java5.12345678910&amp;lt;plugins&amp;gt;     &amp;lt;plugin&amp;gt;       &amp;lt;groupId&amp;gt;org.apache.maven.plugins&amp;lt;/groupId&amp;g">
+<meta name="keywords" content="java,maven">
+<meta property="og:type" content="article">
+<meta property="og:title" content="maven打包技巧">
+<meta property="og:url" content="http://yoursite.com/2017/11/10/maven打包/index.html">
+<meta property="og:site_name" content="Loserbird&#39;s Blog">
+<meta property="og:description" content="基础知识中央仓库：http://repo1.maven.org/maven2 由于历史原因，maven的compile插件默认只支持编译java1.3,因此需要配置该插件使其支持java5.12345678910&amp;lt;plugins&amp;gt;     &amp;lt;plugin&amp;gt;       &amp;lt;groupId&amp;gt;org.apache.maven.plugins&amp;lt;/groupId&amp;g">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-11-10T05:24:23.725Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="maven打包技巧">
+<meta name="twitter:description" content="基础知识中央仓库：http://repo1.maven.org/maven2 由于历史原因，maven的compile插件默认只支持编译java1.3,因此需要配置该插件使其支持java5.12345678910&amp;lt;plugins&amp;gt;     &amp;lt;plugin&amp;gt;       &amp;lt;groupId&amp;gt;org.apache.maven.plugins&amp;lt;/groupId&amp;g">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/11/10/maven打包/"/>
+
+
+
+
+
+  <title>maven打包技巧 | Loserbird's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Loserbird's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Quick notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/10/maven打包/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Loserbird">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Loserbird's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">maven打包技巧</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-10T13:13:55+08:00">
+                2017-11-10
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/maven/" itemprop="url" rel="index">
+                    <span itemprop="name">maven</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <h3 id="基础知识"><a href="#基础知识" class="headerlink" title="基础知识"></a>基础知识</h3><p>中央仓库：<br><code>http://repo1.maven.org/maven2</code></p>
+<p>由于历史原因，maven的compile插件默认只支持编译java1.3,因此需要配置该插件使其支持java5.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div></pre></td><td class="code"><pre><div class="line">&lt;plugins&gt;</div><div class="line">     &lt;plugin&gt;</div><div class="line">       &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;</div><div class="line">       &lt;artifactId&gt;maven-compiler-plugin&lt;/artifactId&gt;</div><div class="line">       &lt;configuration&gt;</div><div class="line">         &lt;source&gt;1.5&lt;/source&gt;</div><div class="line">         &lt;target&gt;1.5&lt;/target&gt;</div><div class="line">       &lt;/configuration&gt;</div><div class="line">     &lt;/plugin&gt;</div><div class="line">   &lt;/plugins&gt;</div></pre></td></tr></table></figure></p>
+<p>surefire是maven中负责执行测试的插件。surefire:test任务运行测试。</p>
+<h3 id="生成可执行jar"><a href="#生成可执行jar" class="headerlink" title="生成可执行jar"></a>生成可执行jar</h3><p>默认打包生成的jar是不能执行的。可以利用利用插件maven shade plugin来配置。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div></pre></td><td class="code"><pre><div class="line">&lt;plugin&gt;  </div><div class="line">    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;  </div><div class="line">    &lt;artifactId&gt;maven-shade-plugin&lt;/artifactId&gt;  </div><div class="line">    &lt;version&gt;1.2.1&lt;/version&gt;  </div><div class="line">    &lt;executions&gt;  </div><div class="line">        &lt;execution&gt;  </div><div class="line">            &lt;phase&gt;package&lt;/phase&gt;  </div><div class="line">            &lt;goals&gt;  </div><div class="line">                &lt;goal&gt;shade&lt;/goal&gt;  </div><div class="line">            &lt;/goals&gt;  </div><div class="line">            &lt;configuration&gt;  </div><div class="line">                &lt;transformers&gt;  </div><div class="line">                    &lt;transformer  </div><div class="line">                        implementation=&quot;org.apache.maven.plugins.shade.resource.ManifestResourceTransformer&quot;&gt;  </div><div class="line">                        &lt;mainClass&gt;com.chenzhou.examples.Main&lt;/mainClass&gt;  </div><div class="line">                    &lt;/transformer&gt;</div><div class="line">                &lt;/transformers&gt;  </div><div class="line">            &lt;/configuration&gt;  </div><div class="line">        &lt;/execution&gt;  </div><div class="line">    &lt;/executions&gt;  </div><div class="line">&lt;/plugin&gt;</div></pre></td></tr></table></figure></p>
+<p>项目打包时会将main-class的信息放到jar包里的MAINFEST.MF中。在target目录下会生成两个jar包。一个是可运行jar，一个是原始jar.<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">java -jar xxx.jar</div></pre></td></tr></table></figure></p>
+<h3 id="使用Archetype生成项目骨架"><a href="#使用Archetype生成项目骨架" class="headerlink" title="使用Archetype生成项目骨架"></a>使用Archetype生成项目骨架</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn archetype:generate</div></pre></td></tr></table></figure>
+<h3 id="dependency-中的-classifier属性"><a href="#dependency-中的-classifier属性" class="headerlink" title="dependency 中的 classifier属性"></a>dependency 中的 classifier属性</h3><p>classifier元素用来帮助定义构件输出的一些附属构件。附属构件与主构件对应，比如主构件是 kimi-app-2.0.0.jar 该项目可能还会通过使用一些插件生成 如 kimi-app-2.0.0-javadoc.jar 、 kimi-app-2.0.0-sources.jar 这样两个附属构件。这时候，javadoc,sources就是这两个附属构件的classifier,这样附属构件也就拥有了自己唯一的坐标。</p>
+<p>不能直接定义项目的 classifer,因为附属构件不是项目直接默认生成的，而是由附加的插件帮助生成的。</p>
+<p>classifier的用途在于:</p>
+<ol>
+<li>maven download  javadoc / sources jar包的时候</li>
+<li>引入依赖的时候,有些jar包提供了不同jdk版本的jar包，例如json-lib。这时要定义classifier<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div></pre></td><td class="code"><pre><div class="line">&lt;dependency&gt;</div><div class="line">            &lt;groupId&gt;net.sf.json-lib&lt;/groupId&gt;</div><div class="line">            &lt;artifactId&gt;json-lib&lt;/artifactId&gt;</div><div class="line">            &lt;version&gt;2.4&lt;/version&gt;</div><div class="line">            &lt;classifier&gt;jdk15&lt;/classifier&gt; </div><div class="line">        &lt;/dependency&gt;</div></pre></td></tr></table></figure>
+</li>
+</ol>
+<h3 id="为项目生成源码包和javadoc"><a href="#为项目生成源码包和javadoc" class="headerlink" title="为项目生成源码包和javadoc"></a>为项目生成源码包和javadoc</h3><p>使用插件<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">&lt;plugin&gt;  </div><div class="line">    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;  </div><div class="line">    &lt;artifactId&gt;maven-source-plugin&lt;/artifactId&gt;  </div><div class="line">    &lt;version&gt;2.1.2&lt;/version&gt;  </div><div class="line">    &lt;executions&gt;  </div><div class="line">      &lt;execution&gt;  </div><div class="line">        &lt;id&gt;attach-sources&lt;/id&gt;  </div><div class="line">        &lt;phase&gt;package&lt;/phase&gt;  </div><div class="line">        &lt;goals&gt;  </div><div class="line">          &lt;goal&gt;jar-no-fork&lt;/goal&gt;  </div><div class="line">        &lt;/goals&gt;  </div><div class="line">      &lt;/execution&gt;  </div><div class="line">    &lt;/executions&gt;  </div><div class="line">  &lt;/plugin&gt;  </div><div class="line">  </div><div class="line">  &lt;plugin&gt;            </div><div class="line">    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;  </div><div class="line">    &lt;artifactId&gt;maven-javadoc-plugin&lt;/artifactId&gt;  </div><div class="line">    &lt;version&gt;2.7&lt;/version&gt;  </div><div class="line">    &lt;executions&gt;  </div><div class="line">      &lt;execution&gt;  </div><div class="line">        &lt;id&gt;attach-javadocs&lt;/id&gt;  </div><div class="line">          &lt;goals&gt;  </div><div class="line">            &lt;goal&gt;jar&lt;/goal&gt;  </div><div class="line">          &lt;/goals&gt;  </div><div class="line">      &lt;/execution&gt;  </div><div class="line">    &lt;/executions&gt;  </div><div class="line">  &lt;/plugin&gt;</div></pre></td></tr></table></figure></p>
+<h3 id="自定义打包格式"><a href="#自定义打包格式" class="headerlink" title="自定义打包格式"></a>自定义打包格式</h3><p>实际的软件项目常常会有更复杂的打包需求，例如我们可能需要为客户提供一份产品的分发包，这个包不仅仅包含项目的字节码文件，还得包含依赖以及相关脚本文件以方便客户解压后就能运行，此外分发包还得包含一些必要的文档。这时项目的源码目录结构大致是这样的：<br>pom.xml<br>src/main/java/<br>src/main/resources/<br>src/test/java/<br>src/test/resources/<br>src/main/scripts/<br>src/main/assembly/<br>README.txt</p>
+<p>src/main/assembly/会包含一个打包描述文件assembly.xml<br>我们希望最终生成一个zip格式的分发包，它包含如下的一个结构：<br>bin/<br>lib/<br>README.txt<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div></pre></td><td class="code"><pre><div class="line">&lt;assembly&gt;  </div><div class="line">  &lt;id&gt;bin&lt;/id&gt;  </div><div class="line">  &lt;formats&gt;  </div><div class="line">    &lt;format&gt;zip&lt;/format&gt;  </div><div class="line">  &lt;/formats&gt;  </div><div class="line">  &lt;dependencySets&gt;  </div><div class="line">    &lt;dependencySet&gt;  </div><div class="line">      &lt;useProjectArtifact&gt;true&lt;/useProjectArtifact&gt;  </div><div class="line">      &lt;outputDirectory&gt;lib&lt;/outputDirectory&gt;  </div><div class="line">    &lt;/dependencySet&gt;  </div><div class="line">  &lt;/dependencySets&gt;  </div><div class="line">  &lt;fileSets&gt;  </div><div class="line">    &lt;fileSet&gt;  </div><div class="line">      &lt;outputDirectory&gt;/&lt;/outputDirectory&gt;  </div><div class="line">      &lt;includes&gt;  </div><div class="line">        &lt;include&gt;README.txt&lt;/include&gt;  </div><div class="line">      &lt;/includes&gt;  </div><div class="line">    &lt;/fileSet&gt;  </div><div class="line">    &lt;fileSet&gt;  </div><div class="line">      &lt;directory&gt;src/main/scripts&lt;/directory&gt;  </div><div class="line">      &lt;outputDirectory&gt;/bin&lt;/outputDirectory&gt;  </div><div class="line">      &lt;includes&gt;  </div><div class="line">        &lt;include&gt;run.sh&lt;/include&gt;  </div><div class="line">        &lt;include&gt;run.bat&lt;/include&gt;  </div><div class="line">      &lt;/includes&gt;  </div><div class="line">    &lt;/fileSet&gt;  </div><div class="line">  &lt;/fileSets&gt;  </div><div class="line">&lt;/assembly&gt;</div></pre></td></tr></table></figure></p>
+<ul>
+<li>首先这个assembly.xml文件的id对应了其最终生成文件的classifier。</li>
+<li>其次formats定义打包生成的文件格式，这里是zip。因此结合id我们会得到一个名为hello-world-1.0-bin.zip的文件。（假设artifactId为hello-world，version为1.0）</li>
+<li>dependencySets用来定义选择依赖并定义最终打包到什么目录，这里我们声明的一个depenencySet默认包含所有所有 依赖，而useProjectArtifact表示将项目本身生成的构件也包含在内，最终打包至输出包内的lib路径下（由 outputDirectory指定）。</li>
+<li>fileSets允许用户通过文件或目录的粒度来控制打包。这里的第一个fileSet打包README.txt文件至包的根目录下，第二个fileSet则将src/main/scripts下的run.sh和run.bat文件打包至输出包的bin目录下</li>
+</ul>
+<p>最后，我们需要配置maven-assembly-plugin使用打包描述文件，并绑定生命周期阶段使其自动执行打包操作：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div></pre></td><td class="code"><pre><div class="line">&lt;plugin&gt;  </div><div class="line">    &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;  </div><div class="line">    &lt;artifactId&gt;maven-assembly-plugin&lt;/artifactId&gt;  </div><div class="line">    &lt;version&gt;2.2.1&lt;/version&gt;  </div><div class="line">    &lt;configuration&gt;  </div><div class="line">      &lt;descriptors&gt;  </div><div class="line">        &lt;descriptor&gt;src/main/assembly/assembly.xml&lt;/descriptor&gt;  </div><div class="line">      &lt;/descriptors&gt;  </div><div class="line">    &lt;/configuration&gt;  </div><div class="line">    &lt;executions&gt;  </div><div class="line">      &lt;execution&gt;  </div><div class="line">        &lt;id&gt;make-assembly&lt;/id&gt;  </div><div class="line">        &lt;phase&gt;package&lt;/phase&gt;  </div><div class="line">        &lt;goals&gt;  </div><div class="line">          &lt;goal&gt;single&lt;/goal&gt;  </div><div class="line">        &lt;/goals&gt;  </div><div class="line">      &lt;/execution&gt;  </div><div class="line">    &lt;/executions&gt;  </div><div class="line">  &lt;/plugin&gt;</div></pre></td></tr></table></figure></p>
+
+      
+    </div>
+    
+    
+    
+    
+    
+      <div>
+        ﻿<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+      </div>
+    
+    
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Loserbird 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="Loserbird 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"><i class="fa fa-tag"></i>java</a>
+          
+            <a href="/tags/maven/" rel="tag"><i class="fa fa-tag"></i>maven</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/10/24/03/" rel="next" title="线程池详解">
+                <i class="fa fa-chevron-left"></i> 线程池详解
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_qzone">QQ空间</a>
+<a class="jiathis_button_tqq">腾讯微博</a>
+<a class="jiathis_button_douban">豆瓣</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Loserbird" />
+            
+              <p class="site-author-name" itemprop="name">Loserbird</p>
+              <p class="site-description motion-element" itemprop="description">to be free</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/loserbird" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://twitter.com/yourname" target="_blank" title="Twitter">
+                    
+                      <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="http://weibo.com/your-user-name" target="_blank" title="微博">
+                    
+                      <i class="fa fa-fw fa-globe"></i>微博</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="http://www.zhihu.com/people/your-user-name" target="_blank" title="知乎">
+                    
+                      <i class="fa fa-fw fa-globe"></i>知乎</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#基础知识"><span class="nav-number">1.</span> <span class="nav-text">基础知识</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#生成可执行jar"><span class="nav-number">2.</span> <span class="nav-text">生成可执行jar</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#使用Archetype生成项目骨架"><span class="nav-number">3.</span> <span class="nav-text">使用Archetype生成项目骨架</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#dependency-中的-classifier属性"><span class="nav-number">4.</span> <span class="nav-text">dependency 中的 classifier属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#为项目生成源码包和javadoc"><span class="nav-number">5.</span> <span class="nav-text">为项目生成源码包和javadoc</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#自定义打包格式"><span class="nav-number">6.</span> <span class="nav-text">自定义打包格式</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; 2016 - <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Loserbird</span>
+
+  
+</div>
+
+
+  <div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+  <div class="powered-by">  个人专属</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">
+    博客-Loserbird
+  </div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
