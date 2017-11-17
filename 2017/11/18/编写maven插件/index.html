@@ -1,0 +1,877 @@
+<!DOCTYPE html>
+
+
+
+  
+
+
+<html class="theme-next mist use-motion" lang="zh-Hans">
+<head>
+  <meta charset="UTF-8"/>
+<meta http-equiv="X-UA-Compatible" content="IE=edge" />
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1"/>
+<meta name="theme-color" content="#222">
+
+
+
+
+
+
+
+
+
+<meta http-equiv="Cache-Control" content="no-transform" />
+<meta http-equiv="Cache-Control" content="no-siteapp" />
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+  <link href="/lib/fancybox/source/jquery.fancybox.css?v=2.1.5" rel="stylesheet" type="text/css" />
+
+
+
+
+
+
+
+<link href="/lib/font-awesome/css/font-awesome.min.css?v=4.6.2" rel="stylesheet" type="text/css" />
+
+<link href="/css/main.css?v=5.1.3" rel="stylesheet" type="text/css" />
+
+
+  <link rel="apple-touch-icon" sizes="180x180" href="/images/apple-touch-icon-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="32x32" href="/images/favicon-32x32-next.png?v=5.1.3">
+
+
+  <link rel="icon" type="image/png" sizes="16x16" href="/images/favicon-16x16-next.png?v=5.1.3">
+
+
+  <link rel="mask-icon" href="/images/logo.svg?v=5.1.3" color="#222">
+
+
+
+
+
+  <meta name="keywords" content="java,maven," />
+
+
+
+
+
+  <link rel="alternate" href="/atom.xml" title="Loserbird's Blog" type="application/atom+xml" />
+
+
+
+
+
+
+<meta name="description" content="新建一个项目：12mvn archetype:generate然后选择maven-archetype-plugin(number为1073） 生成项目骨架，然后倒入IDE中。 maven插件项目的POM有两个特殊的地方：  packaging必须为maven-plugin。 包含一个maven-plugin-api的依赖。该依赖包含了插件开发所必须的类。例如AbstractMojo.version">
+<meta name="keywords" content="java,maven">
+<meta property="og:type" content="article">
+<meta property="og:title" content="编写maven插件">
+<meta property="og:url" content="http://yoursite.com/2017/11/18/编写maven插件/index.html">
+<meta property="og:site_name" content="Loserbird&#39;s Blog">
+<meta property="og:description" content="新建一个项目：12mvn archetype:generate然后选择maven-archetype-plugin(number为1073） 生成项目骨架，然后倒入IDE中。 maven插件项目的POM有两个特殊的地方：  packaging必须为maven-plugin。 包含一个maven-plugin-api的依赖。该依赖包含了插件开发所必须的类。例如AbstractMojo.version">
+<meta property="og:locale" content="zh-Hans">
+<meta property="og:updated_time" content="2017-11-17T16:19:35.393Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="编写maven插件">
+<meta name="twitter:description" content="新建一个项目：12mvn archetype:generate然后选择maven-archetype-plugin(number为1073） 生成项目骨架，然后倒入IDE中。 maven插件项目的POM有两个特殊的地方：  packaging必须为maven-plugin。 包含一个maven-plugin-api的依赖。该依赖包含了插件开发所必须的类。例如AbstractMojo.version">
+
+
+
+<script type="text/javascript" id="hexo.configurations">
+  var NexT = window.NexT || {};
+  var CONFIG = {
+    root: '/',
+    scheme: 'Mist',
+    version: '5.1.3',
+    sidebar: {"position":"left","display":"post","offset":12,"b2t":false,"scrollpercent":false,"onmobile":false},
+    fancybox: true,
+    tabs: true,
+    motion: {"enable":true,"async":false,"transition":{"post_block":"fadeIn","post_header":"slideDownIn","post_body":"slideDownIn","coll_header":"slideLeftIn","sidebar":"slideUpIn"}},
+    duoshuo: {
+      userId: '0',
+      author: '博主'
+    },
+    algolia: {
+      applicationID: '',
+      apiKey: '',
+      indexName: '',
+      hits: {"per_page":10},
+      labels: {"input_placeholder":"Search for Posts","hits_empty":"We didn't find any results for the search: ${query}","hits_stats":"${hits} results found in ${time} ms"}
+    }
+  };
+</script>
+
+
+
+  <link rel="canonical" href="http://yoursite.com/2017/11/18/编写maven插件/"/>
+
+
+
+
+
+  <title>编写maven插件 | Loserbird's Blog</title>
+  
+
+
+
+
+
+
+
+
+</head>
+
+<body itemscope itemtype="http://schema.org/WebPage" lang="zh-Hans">
+
+  
+  
+    
+  
+
+  <div class="container sidebar-position-left page-post-detail">
+    <div class="headband"></div>
+
+    <header id="header" class="header" itemscope itemtype="http://schema.org/WPHeader">
+      <div class="header-inner"><div class="site-brand-wrapper">
+  <div class="site-meta ">
+    
+
+    <div class="custom-logo-site-title">
+      <a href="/"  class="brand" rel="start">
+        <span class="logo-line-before"><i></i></span>
+        <span class="site-title">Loserbird's Blog</span>
+        <span class="logo-line-after"><i></i></span>
+      </a>
+    </div>
+      
+        <p class="site-subtitle">Quick notes</p>
+      
+  </div>
+
+  <div class="site-nav-toggle">
+    <button>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+      <span class="btn-bar"></span>
+    </button>
+  </div>
+</div>
+
+<nav class="site-nav">
+  
+
+  
+    <ul id="menu" class="menu">
+      
+        
+        <li class="menu-item menu-item-home">
+          <a href="/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-home"></i> <br />
+            
+            首页
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-tags">
+          <a href="/tags/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-tags"></i> <br />
+            
+            标签
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-categories">
+          <a href="/categories/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-th"></i> <br />
+            
+            分类
+          </a>
+        </li>
+      
+        
+        <li class="menu-item menu-item-archives">
+          <a href="/archives/" rel="section">
+            
+              <i class="menu-item-icon fa fa-fw fa-archive"></i> <br />
+            
+            归档
+          </a>
+        </li>
+      
+
+      
+    </ul>
+  
+
+  
+</nav>
+
+
+
+ </div>
+    </header>
+
+    <main id="main" class="main">
+      <div class="main-inner">
+        <div class="content-wrap">
+          <div id="content" class="content">
+            
+
+  <div id="posts" class="posts-expand">
+    
+
+  
+
+  
+  
+  
+
+  <article class="post post-type-normal" itemscope itemtype="http://schema.org/Article">
+  
+  
+  
+  <div class="post-block">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/18/编写maven插件/">
+
+    <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
+      <meta itemprop="name" content="Loserbird">
+      <meta itemprop="description" content="">
+      <meta itemprop="image" content="/images/avatar.jpg">
+    </span>
+
+    <span hidden itemprop="publisher" itemscope itemtype="http://schema.org/Organization">
+      <meta itemprop="name" content="Loserbird's Blog">
+    </span>
+
+    
+      <header class="post-header">
+
+        
+        
+          <h1 class="post-title" itemprop="name headline">编写maven插件</h1>
+        
+
+        <div class="post-meta">
+          <span class="post-time">
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-calendar-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">发表于</span>
+              
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-18T00:18:21+08:00">
+                2017-11-18
+              </time>
+            
+
+            
+
+            
+          </span>
+
+          
+            <span class="post-category" >
+            
+              <span class="post-meta-divider">|</span>
+            
+              <span class="post-meta-item-icon">
+                <i class="fa fa-folder-o"></i>
+              </span>
+              
+                <span class="post-meta-item-text">分类于</span>
+              
+              
+                <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
+                  <a href="/categories/maven/" itemprop="url" rel="index">
+                    <span itemprop="name">maven</span>
+                  </a>
+                </span>
+
+                
+                
+              
+            </span>
+          
+
+          
+            
+          
+
+          
+          
+
+          
+
+          
+
+          
+
+        </div>
+      </header>
+    
+
+    
+    
+    
+    <div class="post-body" itemprop="articleBody">
+
+      
+      
+
+      
+        <p>新建一个项目：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">mvn archetype:generate</div><div class="line">然后选择maven-archetype-plugin(number为1073）</div></pre></td></tr></table></figure></p>
+<p>生成项目骨架，然后倒入IDE中。</p>
+<p>maven插件项目的POM有两个特殊的地方：</p>
+<ol>
+<li>packaging必须为maven-plugin。</li>
+<li>包含一个maven-plugin-api的依赖。该依赖包含了插件开发所必须的类。例如AbstractMojo.version建议与maven版本保持一致，都为3.0</li>
+</ol>
+<h3 id="为插件编写目标"><a href="#为插件编写目标" class="headerlink" title="为插件编写目标"></a>为插件编写目标</h3><p>每个插件目标类都必须继承AbstractMojo并实现execute方法。只有这样maven才能识别该插件目标。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div><div class="line">37</div><div class="line">38</div><div class="line">39</div><div class="line">40</div><div class="line">41</div><div class="line">42</div><div class="line">43</div><div class="line">44</div><div class="line">45</div><div class="line">46</div><div class="line">47</div><div class="line">48</div><div class="line">49</div><div class="line">50</div><div class="line">51</div><div class="line">52</div><div class="line">53</div><div class="line">54</div><div class="line">55</div><div class="line">56</div><div class="line">57</div><div class="line">58</div><div class="line">59</div><div class="line">60</div><div class="line">61</div><div class="line">62</div><div class="line">63</div><div class="line">64</div><div class="line">65</div><div class="line">66</div><div class="line">67</div><div class="line">68</div><div class="line">69</div><div class="line">70</div><div class="line">71</div><div class="line">72</div><div class="line">73</div><div class="line">74</div><div class="line">75</div><div class="line">76</div><div class="line">77</div><div class="line">78</div><div class="line">79</div><div class="line">80</div><div class="line">81</div><div class="line">82</div><div class="line">83</div><div class="line">84</div><div class="line">85</div><div class="line">86</div><div class="line">87</div><div class="line">88</div><div class="line">89</div><div class="line">90</div><div class="line">91</div><div class="line">92</div><div class="line">93</div><div class="line">94</div><div class="line">95</div><div class="line">96</div><div class="line">97</div><div class="line">98</div><div class="line">99</div><div class="line">100</div><div class="line">101</div><div class="line">102</div><div class="line">103</div><div class="line">104</div><div class="line">105</div><div class="line">106</div><div class="line">107</div><div class="line">108</div><div class="line">109</div><div class="line">110</div><div class="line">111</div><div class="line">112</div><div class="line">113</div><div class="line">114</div></pre></td><td class="code"><pre><div class="line">/**</div><div class="line"> * @goal count</div><div class="line"> */</div><div class="line">public class CountMojo extends AbstractMojo &#123;</div><div class="line"></div><div class="line"></div><div class="line">    private static final String[] INCLUDES_DEFAULT = &#123;&quot;java&quot;,&quot;xml&quot;,&quot;properties&quot;&#125;;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * @parameter expression=&quot;$&#123;project.basedir&#125;&quot;</div><div class="line">     * @required</div><div class="line">     * @readonly</div><div class="line">     */</div><div class="line">    private File basedir;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * @parameter expression=&quot;$&#123;project.build.sourceDirectory&#125;&quot;</div><div class="line">     * @required</div><div class="line">     * @readonly</div><div class="line">     */</div><div class="line">    private File sourceDirectory;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * @parameter expression=&quot;$&#123;project.build.testSourceDiretory&#125;&quot;</div><div class="line">     * @readonly</div><div class="line">     */</div><div class="line">    private File testSourceDirectory;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * @parameter expression=&quot;$&#123;project.build.resources&#125;&quot;</div><div class="line">     * @readonly</div><div class="line">     */</div><div class="line">    private List&lt;Resource&gt; resources;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * @parameter expression=&quot;$&#123;project.build.testSource&#125;&quot;</div><div class="line">     * @readonly</div><div class="line">     */</div><div class="line">    private List&lt;Resource&gt; testResources;</div><div class="line"></div><div class="line">    /**</div><div class="line">     * @parameter</div><div class="line">     */</div><div class="line">    private String[] includes;</div><div class="line"></div><div class="line">    public void execute()throws  MojoExecutionException,MojoFailureException &#123;</div><div class="line">        if(includes == null &amp;&amp; includes.length == 0 )&#123;</div><div class="line">            includes = INCLUDES_DEFAULT;</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        try&#123;</div><div class="line">            countDir(sourceDirectory);</div><div class="line">            countDir(testSourceDirectory);</div><div class="line">            for(Resource resource : resources)&#123;</div><div class="line">                countDir(new File(resource.getDirectory()));</div><div class="line">            &#125;</div><div class="line">            for(Resource resource : testResources)&#123;</div><div class="line">                countDir(new File(resource.getDirectory()));</div><div class="line">            &#125;</div><div class="line">        &#125;catch (Exception e)&#123;</div><div class="line">            throw new MojoExecutionException(&quot;unable to count lines of code. &quot;,e);</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    private void countDir(File dir) throws IOException&#123;</div><div class="line">        if(dir == null || !dir.exists())&#123;</div><div class="line">            return;</div><div class="line">        &#125;</div><div class="line">        List&lt;File&gt; collected = new ArrayList&lt;File&gt;();</div><div class="line">        collectFiles(collected,dir);</div><div class="line">        int lines = 0;</div><div class="line"></div><div class="line">        for(File sourceFile : collected)&#123;</div><div class="line">            lines += countLine(sourceFile);</div><div class="line">        &#125;</div><div class="line"></div><div class="line">        String path = dir.getAbsolutePath().substring(basedir.getAbsolutePath().length());</div><div class="line"></div><div class="line">        getLog().info(path + &quot;:&quot; + lines + &quot; lines of code in &quot;+ collected.size()+&quot; files&quot;);</div><div class="line"></div><div class="line">    &#125;</div><div class="line">    //收集文件</div><div class="line">    private void collectFiles(List&lt;File&gt; collected,File file)&#123;</div><div class="line">        if(file.isFile())&#123;</div><div class="line">            for(String include : includes)&#123;</div><div class="line">                if(file.getName().endsWith(&quot;.&quot;+include))&#123;</div><div class="line">                    collected.add(file);</div><div class="line">                    break;</div><div class="line">                &#125;</div><div class="line">            &#125;</div><div class="line">        &#125;else&#123;</div><div class="line">            for(File sub : file.listFiles())&#123;</div><div class="line">                collectFiles(collected,sub);</div><div class="line">            &#125;</div><div class="line">        &#125;</div><div class="line">    &#125;</div><div class="line"></div><div class="line">    //计算每个文件的行数</div><div class="line">    private  int countLine(File file) throws IOException&#123;</div><div class="line">        BufferedReader reader = new BufferedReader(new FileReader(file));</div><div class="line"></div><div class="line">        int line = 0;</div><div class="line"></div><div class="line">        try&#123;</div><div class="line">            while (reader.ready())&#123;</div><div class="line">                reader.readLine();</div><div class="line">                line++;</div><div class="line">            &#125;</div><div class="line">        &#125;finally &#123;</div><div class="line">            reader.close();</div><div class="line">        &#125;</div><div class="line">        return line;</div><div class="line">    &#125;</div><div class="line">&#125;</div></pre></td></tr></table></figure></p>
+<p>上面该插件的类是统计资源文件的代码行数。Mojo类采用java1.4风格的标注（将注解卸载注释中），其中@goal表示自己的目标名称。有了目标名称才能在项目中配置该插件目标，或者在命令行调用。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div></pre></td><td class="code"><pre><div class="line">mvn com.loserbird:mymvnplugin:1.0-SNAPSHOT:count</div></pre></td></tr></table></figure></p>
+<h3 id="配置插件属性"><a href="#配置插件属性" class="headerlink" title="配置插件属性"></a>配置插件属性</h3><p>includes属性使用了@parameter参数，所以可以配置<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div></pre></td><td class="code"><pre><div class="line">&lt;plugin&gt;</div><div class="line">           &lt;groupId&gt;com.loserbird&lt;/groupId&gt;</div><div class="line">           &lt;artifactId&gt;mymvnplugin&lt;/artifactId&gt;</div><div class="line">           &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;</div><div class="line">           &lt;configuration&gt;</div><div class="line">               &lt;includes&gt;</div><div class="line">                   &lt;include&gt;java&lt;/include&gt;</div><div class="line">                   &lt;include&gt;sql&lt;/include&gt;</div><div class="line">               &lt;/includes&gt;</div><div class="line">           &lt;/configuration&gt;</div><div class="line">       &lt;/plugin&gt;</div></pre></td></tr></table></figure></p>
+<p>使用mvn clean install 将插件项目安装到本地之后，就能使用它统计maven项目的代码行了。</p>
+<p>如果想简化命令调用，可以将该插件的groupId添加到settings的pluginGroups中。然后maven命令就可以简化为<br><code>mvn mymvnplugin:count</code></p>
+<h3 id="标注"><a href="#标注" class="headerlink" title="标注"></a>标注</h3><ul>
+<li>@goal:目标</li>
+<li>@phase:默认将该目标绑定至Default生命周期的某个阶段。</li>
+<li>@requireDependencyResolution (scope):在运行Mojo之前必须解析所有指定范围的依赖。默认runtime</li>
+<li>@requiresDirectInvocation：默认为false.如果true则表示只能在命令行调用。</li>
+<li>@requiresReport:是否要求项目报告已经生成。默认false.</li>
+<li>@aggregator:当Mojo在多模块项目上运行时，使用该标注表示该目标只会在顶层模块运行。</li>
+<li>@execute goal=””:在运行该目标之前先让maven运行另外一个目标。</li>
+<li>@execute phase=””:在运行该目标之前先让maven运行一个并行的生命周期，到指定的阶段为止。</li>
+<li>@execute lifecycle=”” phase=”” :在运行该目标之前先让maven运行一个自定义的生命周期，到指定的阶段为止。</li>
+</ul>
+<h3 id="mojo参数"><a href="#mojo参数" class="headerlink" title="mojo参数"></a>mojo参数</h3><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">@parameter alias=&quot;&quot; :在pom配置的时候就可以配置为别名。</div><div class="line">@parameter expression=&quot;$&#123;systemProperty&#125;&quot;:使用系统属性表达式对mojo参数进行赋值。用户可以在命令行配置该mojo参数（-D）。</div></pre></td></tr></table></figure>
+<h3 id="错误处理和日志"><a href="#错误处理和日志" class="headerlink" title="错误处理和日志"></a>错误处理和日志</h3><ul>
+<li>抛出MojoExecutionException异常表示未预期的异常，maven提示BUILD ERROR</li>
+<li>抛出MojoFailureException异常表示预期的异常，maven提示BUILD FAIL。</li>
+</ul>
+<p>AbstractMojo提供了一个getLog()方法，可以打一些日志。有debug,info,warn,error级别。</p>
+<h3 id="测试maven插件"><a href="#测试maven插件" class="headerlink" title="测试maven插件"></a>测试maven插件</h3><p>maven社区有个用来帮助插件继承测试的插件：maven-invoker-pluign.该插件能够在一组项目上执行maven,并检查每个项目的构建是否成功。<br>在插件项目的pom中配置：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div></pre></td><td class="code"><pre><div class="line">&lt;plugins&gt;</div><div class="line">             &lt;plugin&gt;</div><div class="line">                 &lt;groupId&gt;org.apache.maven.plugins&lt;/groupId&gt;</div><div class="line">                 &lt;artifactId&gt;maven-invoker-plugin&lt;/artifactId&gt;</div><div class="line">                 &lt;version&gt;1.7&lt;/version&gt;</div><div class="line">                 &lt;configuration&gt;</div><div class="line">                     &lt;projectsDirectory&gt;src/it&lt;/projectsDirectory&gt;</div><div class="line">                     &lt;goals&gt;</div><div class="line">                         &lt;goal&gt;clean&lt;/goal&gt;</div><div class="line">                         &lt;goal&gt;test-compile&lt;/goal&gt;</div><div class="line">                     &lt;/goals&gt;</div><div class="line">                     &lt;debug&gt;true&lt;/debug&gt;</div><div class="line">                     &lt;postBuildHookScript&gt;verify.groovy&lt;/postBuildHookScript&gt;</div><div class="line">                 &lt;/configuration&gt;</div><div class="line">                 &lt;executions&gt;</div><div class="line">                     &lt;execution&gt;</div><div class="line">                         &lt;id&gt;integration-test&lt;/id&gt;</div><div class="line">                         &lt;goals&gt;</div><div class="line">                             &lt;goal&gt;install&lt;/goal&gt;</div><div class="line">                             &lt;goal&gt;run&lt;/goal&gt;</div><div class="line">                         &lt;/goals&gt;</div><div class="line">                     &lt;/execution&gt;</div><div class="line">                 &lt;/executions&gt;</div><div class="line">             &lt;/plugin&gt;</div></pre></td></tr></table></figure></p>
+<p>projectDirectory用来配置测试项目的目录。goals表示在测试项目要运行的Maven目标。postBuildHookScript表示在测试完成后要运行的验证脚本。</p>
+<p>maven-invoker-plugin有两个目标install,run绑定到integration-test阶段，install表示将插件构件安装到本地。run目标执行定义好的mvn命令并运行验证脚本。 </p>
+<p>接下来在测试项目上配置使用插件：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div></pre></td><td class="code"><pre><div class="line">&lt;plugin&gt;</div><div class="line">       &lt;groupId&gt;com.loserbird&lt;/groupId&gt;</div><div class="line">       &lt;artifactId&gt;mymvnplugin&lt;/artifactId&gt;</div><div class="line">       &lt;version&gt;1.0-SNAPSHOT&lt;/version&gt;</div><div class="line">       &lt;executions&gt;</div><div class="line">         &lt;execution&gt;</div><div class="line">           &lt;phase&gt;verify&lt;/phase&gt;</div><div class="line">           &lt;goals&gt;</div><div class="line">             &lt;goal&gt;count&lt;/goal&gt;</div><div class="line">           &lt;/goals&gt;</div><div class="line">         &lt;/execution&gt;</div><div class="line">       &lt;/executions&gt;</div><div class="line">     &lt;/plugin&gt;</div></pre></td></tr></table></figure></p>
+<p>验证脚本如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div></pre></td><td class="code"><pre><div class="line">def file = new File( basedir, &quot;build.log&quot; );</div><div class="line"></div><div class="line">def countMain = false;</div><div class="line">def countTest = false;</div><div class="line"></div><div class="line">file.eachLine&#123;</div><div class="line">    if(it=~/src.main.java:13 lines of code in 1 files/)</div><div class="line">        countMain = true</div><div class="line">    if(it=~/src.main.java:13 lines of code in 1 files/)</div><div class="line">        countTest = true</div><div class="line">&#125;</div><div class="line"></div><div class="line">if(!countMain)</div><div class="line">    throw new RuntimeException(&quot;incorrect src/main/java count info&quot;)</div><div class="line">if(!countTest)</div><div class="line">    throw new RuntimeException(&quot;incorrect src/test/java count info&quot;)</div></pre></td></tr></table></figure></p>
+<p>在插件项目上执行mvn clean install就能看到对应的输出。</p>
+
+      
+    </div>
+    
+    
+    
+    
+    
+      <div>
+        ﻿<div>
+    
+        <div style="text-align:center;color: #ccc;font-size:14px;">-------------本文结束<i class="fa fa-paw"></i>感谢您的阅读-------------</div>
+    
+</div>
+      </div>
+    
+    
+    
+
+    
+      <div>
+        <div style="padding: 10px 0; margin: 20px auto; width: 90%; text-align: center;">
+  <div>坚持原创技术分享，您的支持将鼓励我继续创作！</div>
+  <button id="rewardButton" disable="enable" onclick="var qr = document.getElementById('QR'); if (qr.style.display === 'none') {qr.style.display='block';} else {qr.style.display='none'}">
+    <span>打赏</span>
+  </button>
+  <div id="QR" style="display: none;">
+
+    
+      <div id="wechat" style="display: inline-block">
+        <img id="wechat_qr" src="/images/wechatpay.jpg" alt="Loserbird 微信支付"/>
+        <p>微信支付</p>
+      </div>
+    
+
+    
+      <div id="alipay" style="display: inline-block">
+        <img id="alipay_qr" src="/images/alipay.jpg" alt="Loserbird 支付宝"/>
+        <p>支付宝</p>
+      </div>
+    
+
+    
+
+  </div>
+</div>
+
+      </div>
+    
+
+    
+
+    <footer class="post-footer">
+      
+        <div class="post-tags">
+          
+            <a href="/tags/java/" rel="tag"><i class="fa fa-tag"></i>java</a>
+          
+            <a href="/tags/maven/" rel="tag"><i class="fa fa-tag"></i>maven</a>
+          
+        </div>
+      
+
+      
+      
+      
+
+      
+        <div class="post-nav">
+          <div class="post-nav-next post-nav-item">
+            
+              <a href="/2017/11/18/编写Archetype/" rel="next" title="编写Archetype">
+                <i class="fa fa-chevron-left"></i> 编写Archetype
+              </a>
+            
+          </div>
+
+          <span class="post-nav-divider"></span>
+
+          <div class="post-nav-prev post-nav-item">
+            
+          </div>
+        </div>
+      
+
+      
+      
+    </footer>
+  </div>
+  
+  
+  
+  </article>
+
+
+
+    <div class="post-spread">
+      
+        <!-- JiaThis Button BEGIN -->
+<div class="jiathis_style">
+<span class="jiathis_txt">分享到：</span>
+<a class="jiathis_button_fav">收藏夹</a>
+<a class="jiathis_button_copy">复制网址</a>
+<a class="jiathis_button_email">邮件</a>
+<a class="jiathis_button_weixin">微信</a>
+<a class="jiathis_button_qzone">QQ空间</a>
+<a class="jiathis_button_tqq">腾讯微博</a>
+<a class="jiathis_button_douban">豆瓣</a>
+<a class="jiathis_button_share">一键分享</a>
+
+<a href="http://www.jiathis.com/share?uid=2140465" class="jiathis jiathis_txt jiathis_separator jtico jtico_jiathis" target="_blank">更多</a>
+<a class="jiathis_counter_style"></a>
+</div>
+<script type="text/javascript" >
+var jiathis_config={
+  data_track_clickback:true,
+  summary:"",
+  shortUrl:false,
+  hideMore:false
+}
+</script>
+<script type="text/javascript" src="http://v3.jiathis.com/code/jia.js?uid=" charset="utf-8"></script>
+<!-- JiaThis Button END -->
+      
+    </div>
+  </div>
+
+
+          </div>
+          
+
+
+          
+
+  
+
+
+
+        </div>
+        
+          
+  
+  <div class="sidebar-toggle">
+    <div class="sidebar-toggle-line-wrap">
+      <span class="sidebar-toggle-line sidebar-toggle-line-first"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-middle"></span>
+      <span class="sidebar-toggle-line sidebar-toggle-line-last"></span>
+    </div>
+  </div>
+
+  <aside id="sidebar" class="sidebar">
+    
+    <div class="sidebar-inner">
+
+      
+
+      
+        <ul class="sidebar-nav motion-element">
+          <li class="sidebar-nav-toc sidebar-nav-active" data-target="post-toc-wrap">
+            文章目录
+          </li>
+          <li class="sidebar-nav-overview" data-target="site-overview-wrap">
+            站点概览
+          </li>
+        </ul>
+      
+
+      <section class="site-overview-wrap sidebar-panel">
+        <div class="site-overview">
+          <div class="site-author motion-element" itemprop="author" itemscope itemtype="http://schema.org/Person">
+            
+              <img class="site-author-image" itemprop="image"
+                src="/images/avatar.jpg"
+                alt="Loserbird" />
+            
+              <p class="site-author-name" itemprop="name">Loserbird</p>
+              <p class="site-description motion-element" itemprop="description">to be free</p>
+          </div>
+
+          <nav class="site-state motion-element">
+
+            
+              <div class="site-state-item site-state-posts">
+              
+                <a href="/archives/">
+              
+                  <span class="site-state-item-count">10</span>
+                  <span class="site-state-item-name">日志</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-categories">
+                <a href="/categories/index.html">
+                  <span class="site-state-item-count">4</span>
+                  <span class="site-state-item-name">分类</span>
+                </a>
+              </div>
+            
+
+            
+              
+              
+              <div class="site-state-item site-state-tags">
+                <a href="/tags/index.html">
+                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-name">标签</span>
+                </a>
+              </div>
+            
+
+          </nav>
+
+          
+            <div class="feed-link motion-element">
+              <a href="/atom.xml" rel="alternate">
+                <i class="fa fa-rss"></i>
+                RSS
+              </a>
+            </div>
+          
+
+          <div class="links-of-author motion-element">
+            
+              
+                <span class="links-of-author-item">
+                  <a href="https://github.com/loserbird" target="_blank" title="GitHub">
+                    
+                      <i class="fa fa-fw fa-github"></i>GitHub</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="https://twitter.com/yourname" target="_blank" title="Twitter">
+                    
+                      <i class="fa fa-fw fa-twitter"></i>Twitter</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="http://weibo.com/your-user-name" target="_blank" title="微博">
+                    
+                      <i class="fa fa-fw fa-globe"></i>微博</a>
+                </span>
+              
+                <span class="links-of-author-item">
+                  <a href="http://www.zhihu.com/people/your-user-name" target="_blank" title="知乎">
+                    
+                      <i class="fa fa-fw fa-globe"></i>知乎</a>
+                </span>
+              
+            
+          </div>
+
+          
+          
+
+          
+          
+
+          
+
+        </div>
+      </section>
+
+      
+      <!--noindex-->
+        <section class="post-toc-wrap motion-element sidebar-panel sidebar-panel-active">
+          <div class="post-toc">
+
+            
+              
+            
+
+            
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#为插件编写目标"><span class="nav-number">1.</span> <span class="nav-text">为插件编写目标</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#配置插件属性"><span class="nav-number">2.</span> <span class="nav-text">配置插件属性</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#标注"><span class="nav-number">3.</span> <span class="nav-text">标注</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#mojo参数"><span class="nav-number">4.</span> <span class="nav-text">mojo参数</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#错误处理和日志"><span class="nav-number">5.</span> <span class="nav-text">错误处理和日志</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#测试maven插件"><span class="nav-number">6.</span> <span class="nav-text">测试maven插件</span></a></li></ol></div>
+            
+
+          </div>
+        </section>
+      <!--/noindex-->
+      
+
+      
+
+    </div>
+  </aside>
+
+
+        
+      </div>
+    </main>
+
+    <footer id="footer" class="footer">
+      <div class="footer-inner">
+        <script async src="https://dn-lbstatics.qbox.me/busuanzi/2.3/busuanzi.pure.mini.js"></script>
+<div class="copyright">&copy; 2016 - <span itemprop="copyrightYear">2017</span>
+  <span class="with-love">
+    <i class="fa fa-user"></i>
+  </span>
+  <span class="author" itemprop="copyrightHolder">Loserbird</span>
+
+  
+</div>
+
+
+  <div class="powered-by">
+<i class="fa fa-user-md"></i><span id="busuanzi_container_site_uv">
+  本站访客数:<span id="busuanzi_value_site_uv"></span>
+</span>
+</div>
+  <div class="powered-by">  个人专属</div>
+
+
+
+  <span class="post-meta-divider">|</span>
+
+
+
+  <div class="theme-info">
+    博客-Loserbird
+  </div>
+
+
+
+
+        
+
+
+
+
+
+
+
+        
+      </div>
+    </footer>
+
+    
+      <div class="back-to-top">
+        <i class="fa fa-arrow-up"></i>
+        
+      </div>
+    
+
+    
+
+  </div>
+
+  
+
+<script type="text/javascript">
+  if (Object.prototype.toString.call(window.Promise) !== '[object Function]') {
+    window.Promise = null;
+  }
+</script>
+
+
+
+
+
+
+
+
+
+  
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery/index.js?v=2.1.3"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fastclick/lib/fastclick.min.js?v=1.0.6"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/jquery_lazyload/jquery.lazyload.js?v=1.9.7"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/velocity/velocity.ui.min.js?v=1.2.1"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/fancybox/source/jquery.fancybox.pack.js?v=2.1.5"></script>
+  
+
+  
+  
+    <script type="text/javascript" src="/lib/canvas-nest/canvas-nest.min.js"></script>
+  
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/utils.js?v=5.1.3"></script>
+
+  <script type="text/javascript" src="/js/src/motion.js?v=5.1.3"></script>
+
+
+
+  
+  
+
+  
+  <script type="text/javascript" src="/js/src/scrollspy.js?v=5.1.3"></script>
+<script type="text/javascript" src="/js/src/post-details.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  <script type="text/javascript" src="/js/src/bootstrap.js?v=5.1.3"></script>
+
+
+
+  
+
+
+  
+
+
+
+
+	
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+
+
+
+
+
+
+
+
+
+
+
+  
+
+
+
+
+
+  
+
+  
+
+  
+  
+
+  
+
+  
+
+  
+
+</body>
+</html>
