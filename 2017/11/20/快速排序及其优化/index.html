@@ -89,7 +89,7 @@
 <meta property="og:site_name" content="Loserbird&#39;s Blog">
 <meta property="og:description" content="基本思想快速排序使用分治的思想，通过一趟排序将待排序列分割成两部分，其中一部分记录的关键字均比基准点小，另一部分比基准点大。之后分别对这两部分记录继续进行排序，以达到整个序列有序的目的。 步骤 选择基准：在待排序列中，按照某种方式挑出一个元素，作为 “基准” 分割操作：把该基准放在序列中的实际位置，即最终排序完成后该基准所在的位置。此时序列将分成两个子序列。在基准左边的元素都比该基准小，在基准右边">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-20T15:43:13.531Z">
+<meta property="og:updated_time" content="2017-11-20T15:45:38.351Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="快速排序及其优化">
 <meta name="twitter:description" content="基本思想快速排序使用分治的思想，通过一趟排序将待排序列分割成两部分，其中一部分记录的关键字均比基准点小，另一部分比基准点大。之后分别对这两部分记录继续进行排序，以达到整个序列有序的目的。 步骤 选择基准：在待排序列中，按照某种方式挑出一个元素，作为 “基准” 分割操作：把该基准放在序列中的实际位置，即最终排序完成后该基准所在的位置。此时序列将分成两个子序列。在基准左边的元素都比该基准小，在基准右边">
@@ -361,7 +361,6 @@
 <li>在一次分割结束后，可以把与基准相等的元素聚在一起，继续下次分割时，不用再对这些元素分割。<br>程序如下：<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div><div class="line">28</div><div class="line">29</div><div class="line">30</div><div class="line">31</div><div class="line">32</div><div class="line">33</div><div class="line">34</div><div class="line">35</div><div class="line">36</div></pre></td><td class="code"><pre><div class="line">//使用三路快速排序，避免重复元素过多而导致时间复杂度为O(2^n)的情况</div><div class="line">	public static void quicksort3way(int[] arr, int l,int r)&#123;</div><div class="line">		if(l&gt;=r) return;</div><div class="line">		//当排序的数目较小时使用插入排序可提高性能</div><div class="line">		if(r-l &lt;= 15)&#123;</div><div class="line">			InsertSort.insertSort(arr, l,r);</div><div class="line">		&#125;</div><div class="line">		//随机选取基准,避免数组近乎有序而导致时间复杂度为O(2^n)的情况</div><div class="line">		int temp = random.nextInt(r-l+1)+l;</div><div class="line">		SortUtil.swap(arr, l, temp);</div><div class="line">		</div><div class="line">		int v = arr[l];</div><div class="line">		int lt = l; //arr[l+1...lt]&lt;v</div><div class="line">		int gt = r+1;//arr[gt...r]&gt;v</div><div class="line">		int i = l+1;//arr[lt+1..i)==v</div><div class="line">		</div><div class="line">		while(i&lt;gt)&#123;</div><div class="line">			if(arr[i]&lt;v)&#123;</div><div class="line">				SortUtil.swap(arr,i,lt+1);</div><div class="line">				i++;</div><div class="line">				lt++;</div><div class="line">			&#125;else if(arr[i]&gt;v)&#123;</div><div class="line">				SortUtil.swap(arr,i,gt-1);</div><div class="line">				gt--;</div><div class="line">			&#125;else&#123;</div><div class="line">				i++;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">		SortUtil.swap(arr,l,lt);</div><div class="line">		quicksort3way(arr,l,lt-1);</div><div class="line">		quicksort3way(arr,gt,r);</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">	public static void quicksort3(int[] arr,int n)&#123;</div><div class="line">		quicksort3way(arr,0,n-1);</div><div class="line">	&#125;</div></pre></td></tr></table></figure>
 </li>
 </ol>
-<p>参考链接：<a href="http://blog.csdn.net/insistgogo/article/details/7785038" target="_blank" rel="external">http://blog.csdn.net/insistgogo/article/details/7785038</a></p>
 
       
     </div>
@@ -442,6 +441,10 @@
           <span class="post-nav-divider"></span>
 
           <div class="post-nav-prev post-nav-item">
+            
+              <a href="/2017/11/21/桶式排序与基数排序/" rel="prev" title="桶式排序与基数排序">
+                桶式排序与基数排序 <i class="fa fa-chevron-right"></i>
+              </a>
             
           </div>
         </div>
@@ -548,7 +551,7 @@ var jiathis_config={
               
                 <a href="/archives/">
               
-                  <span class="site-state-item-count">13</span>
+                  <span class="site-state-item-count">15</span>
                   <span class="site-state-item-name">日志</span>
                 </a>
               </div>
@@ -559,7 +562,7 @@ var jiathis_config={
               
               <div class="site-state-item site-state-categories">
                 <a href="/categories/index.html">
-                  <span class="site-state-item-count">5</span>
+                  <span class="site-state-item-count">6</span>
                   <span class="site-state-item-name">分类</span>
                 </a>
               </div>
@@ -570,7 +573,7 @@ var jiathis_config={
               
               <div class="site-state-item site-state-tags">
                 <a href="/tags/index.html">
-                  <span class="site-state-item-count">7</span>
+                  <span class="site-state-item-count">8</span>
                   <span class="site-state-item-name">标签</span>
                 </a>
               </div>
