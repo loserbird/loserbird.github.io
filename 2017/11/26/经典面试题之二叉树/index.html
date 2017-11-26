@@ -68,7 +68,7 @@
 
 
 
-  <meta name="keywords" content="svn," />
+  <meta name="keywords" content="算法," />
 
 
 
@@ -81,18 +81,18 @@
 
 
 
-<meta name="description" content="安装CentOS通过yum安装subversion。 $ sudo yum install subversion subversion安装在/bin目录： $ which svnserveusr/bin/svnserve检查一下subversion是否安装成功。 $ svnserve --version 建立版本库subversion默认以/var/svn作为数据根目录，可以通过/etc/sysc">
-<meta name="keywords" content="svn">
+<meta name="description" content="二叉树从左到右顺序打印并换行思路：用队列实现层次遍历。增加两个变量，last（指向当前层的最后一个节点），nlast指向下一层的最后一个节点。初始时令last等于根节点。令nlast始终等于最新加入队列中的节点。当出队的节点是last时，更新last=nlast.直到循环结束。 代码如下：12345678910111213141516171819202122public static void p">
+<meta name="keywords" content="算法">
 <meta property="og:type" content="article">
-<meta property="og:title" content="centos7搭建svn服务">
-<meta property="og:url" content="http://yoursite.com/2017/11/21/centos7搭建svn服务/index.html">
+<meta property="og:title" content="经典面试题之二叉树">
+<meta property="og:url" content="http://yoursite.com/2017/11/26/经典面试题之二叉树/index.html">
 <meta property="og:site_name" content="Loserbird&#39;s Blog">
-<meta property="og:description" content="安装CentOS通过yum安装subversion。 $ sudo yum install subversion subversion安装在/bin目录： $ which svnserveusr/bin/svnserve检查一下subversion是否安装成功。 $ svnserve --version 建立版本库subversion默认以/var/svn作为数据根目录，可以通过/etc/sysc">
+<meta property="og:description" content="二叉树从左到右顺序打印并换行思路：用队列实现层次遍历。增加两个变量，last（指向当前层的最后一个节点），nlast指向下一层的最后一个节点。初始时令last等于根节点。令nlast始终等于最新加入队列中的节点。当出队的节点是last时，更新last=nlast.直到循环结束。 代码如下：12345678910111213141516171819202122public static void p">
 <meta property="og:locale" content="zh-Hans">
-<meta property="og:updated_time" content="2017-11-21T15:59:35.857Z">
+<meta property="og:updated_time" content="2017-11-26T08:34:40.318Z">
 <meta name="twitter:card" content="summary">
-<meta name="twitter:title" content="centos7搭建svn服务">
-<meta name="twitter:description" content="安装CentOS通过yum安装subversion。 $ sudo yum install subversion subversion安装在/bin目录： $ which svnserveusr/bin/svnserve检查一下subversion是否安装成功。 $ svnserve --version 建立版本库subversion默认以/var/svn作为数据根目录，可以通过/etc/sysc">
+<meta name="twitter:title" content="经典面试题之二叉树">
+<meta name="twitter:description" content="二叉树从左到右顺序打印并换行思路：用队列实现层次遍历。增加两个变量，last（指向当前层的最后一个节点），nlast指向下一层的最后一个节点。初始时令last等于根节点。令nlast始终等于最新加入队列中的节点。当出队的节点是last时，更新last=nlast.直到循环结束。 代码如下：12345678910111213141516171819202122public static void p">
 
 
 
@@ -122,13 +122,13 @@
 
 
 
-  <link rel="canonical" href="http://yoursite.com/2017/11/21/centos7搭建svn服务/"/>
+  <link rel="canonical" href="http://yoursite.com/2017/11/26/经典面试题之二叉树/"/>
 
 
 
 
 
-  <title>centos7搭建svn服务 | Loserbird's Blog</title>
+  <title>经典面试题之二叉树 | Loserbird's Blog</title>
   
 
 
@@ -255,7 +255,7 @@
   
   
   <div class="post-block">
-    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/21/centos7搭建svn服务/">
+    <link itemprop="mainEntityOfPage" href="http://yoursite.com/2017/11/26/经典面试题之二叉树/">
 
     <span hidden itemprop="author" itemscope itemtype="http://schema.org/Person">
       <meta itemprop="name" content="Loserbird">
@@ -272,7 +272,7 @@
 
         
         
-          <h1 class="post-title" itemprop="name headline">centos7搭建svn服务</h1>
+          <h1 class="post-title" itemprop="name headline">经典面试题之二叉树</h1>
         
 
         <div class="post-meta">
@@ -284,8 +284,8 @@
               
                 <span class="post-meta-item-text">发表于</span>
               
-              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-21T23:58:41+08:00">
-                2017-11-21
+              <time title="创建于" itemprop="dateCreated datePublished" datetime="2017-11-26T16:33:46+08:00">
+                2017-11-26
               </time>
             
 
@@ -307,8 +307,8 @@
               
               
                 <span itemprop="about" itemscope itemtype="http://schema.org/Thing">
-                  <a href="/categories/svn/" itemprop="url" rel="index">
-                    <span itemprop="name">svn</span>
+                  <a href="/categories/算法/" itemprop="url" rel="index">
+                    <span itemprop="name">算法</span>
                   </a>
                 </span>
 
@@ -344,25 +344,10 @@
       
 
       
-        <h3 id="安装"><a href="#安装" class="headerlink" title="安装"></a>安装</h3><p>CentOS通过yum安装subversion。</p>
-<p>$ sudo yum install subversion<br> subversion安装在/bin目录：</p>
-<p>$ which svnserve<br>usr/bin/svnserve<br>检查一下subversion是否安装成功。</p>
-<p><code>$ svnserve --version</code></p>
-<h3 id="建立版本库"><a href="#建立版本库" class="headerlink" title="建立版本库"></a>建立版本库</h3><p>subversion默认以/var/svn作为数据根目录，可以通过/etc/sysconfig/svnserve修改这个默认位置。</p>
-<p>使用svnadmin建立版本库hello-svn</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ sudo mkdir -p /opt/svn</div><div class="line">$ sudo svnadmin create /opt/svn/hello-svn</div></pre></td></tr></table></figure>
-<p>###配置<br>编辑用户文件passwd，新增两个用户：admin和guest。</p>
-<figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ cat /opt/svn/hello-svn/conf/passwd </div><div class="line">[users]</div><div class="line">admin = admin</div><div class="line">guest = guest</div></pre></td></tr></table></figure>
-<p>编辑权限文件authz，用户admin设置可读写权限，guest设置只读权限。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div></pre></td><td class="code"><pre><div class="line">$ cat /opt/svn/hello-svn/conf/authz </div><div class="line">[/]</div><div class="line">admin = rw</div><div class="line">guest = r</div></pre></td></tr></table></figure></p>
-<p>编辑svnserve.conf：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div></pre></td><td class="code"><pre><div class="line">$ cat /opt/svn/hello-svn/conf/svnserve.conf </div><div class="line">[general]</div><div class="line">anon-access = none                     #控制非鉴权用户访问版本库的权限</div><div class="line">auth-access = write                    #控制鉴权用户访问版本库的权限</div><div class="line">password-db = passwd                   #指定用户名口令文件名</div><div class="line">authz-db = authz                       #指定权限配置文件名</div><div class="line">realm = spring-hello-world             #指定版本库的认证域，即在登录时提示的认证域名称</div></pre></td></tr></table></figure></p>
-<h3 id="SVN服务"><a href="#SVN服务" class="headerlink" title="SVN服务"></a>SVN服务</h3><p>启动SVN服务。</p>
-<p><code>$ sudo systemctl start svnserve.service</code><br>检查服务是否启动成功。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div></pre></td><td class="code"><pre><div class="line">$ ps aux | grep svn</div><div class="line">root      16349  0.0  0.1 162180   900 ?        Ss   15:01   0:00 /usr/bin/svnserve --daemon --pid-file=/run/svnserve/svnserve.pid -r /opt/svn</div></pre></td></tr></table></figure></p>
-<p>通过netstat可以看到SVN打开了3690端口。<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div></pre></td><td class="code"><pre><div class="line">$ sudo netstat -tnlp</div><div class="line">Proto Recv-Q Send-Q Local Address           Foreign Address         State       PID/Program name    </div><div class="line">tcp        0      0 0.0.0.0:3690            0.0.0.0:*               LISTEN      16349/svnserve</div></pre></td></tr></table></figure></p>
-<p>设置成开机启动。</p>
-<p><code>$ sudo systemctl enable svnserve.service</code></p>
-<ol>
-<li>客户端测试<br>客户端可以通过TortoriseSVN测试。注意url前缀为svn。</li>
-</ol>
+        <h3 id="二叉树从左到右顺序打印并换行"><a href="#二叉树从左到右顺序打印并换行" class="headerlink" title="二叉树从左到右顺序打印并换行"></a>二叉树从左到右顺序打印并换行</h3><p>思路：用队列实现层次遍历。增加两个变量，last（指向当前层的最后一个节点），nlast指向下一层的最后一个节点。初始时令last等于根节点。令nlast始终等于最新加入队列中的节点。当出队的节点是last时，更新last=nlast.直到循环结束。</p>
+<p>代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div></pre></td><td class="code"><pre><div class="line">public static void printNode(BinaryTreeNode root)&#123;</div><div class="line">		Queue&lt;BinaryTreeNode&gt; queue = new LinkedList&lt;&gt;();</div><div class="line">		queue.offer(root);</div><div class="line">		BinaryTreeNode last = root;</div><div class="line">		BinaryTreeNode nlast = root;</div><div class="line">		while(!queue.isEmpty())&#123;</div><div class="line">			BinaryTreeNode node = queue.poll();</div><div class="line">			System.out.print(node.getData()+&quot; &quot;);</div><div class="line">			if(node.getLeft() != null)&#123;</div><div class="line">				queue.offer(node.getLeft());</div><div class="line">				nlast = node.getLeft();</div><div class="line">			&#125;</div><div class="line">			if(node.getRight() != null)&#123;</div><div class="line">				queue.offer(node.getRight());</div><div class="line">				nlast = node.getRight();</div><div class="line">			&#125;</div><div class="line">			if(node == last)&#123;</div><div class="line">				System.out.println();</div><div class="line">				last = nlast;</div><div class="line">			&#125;</div><div class="line">		&#125;</div><div class="line">	&#125;</div></pre></td></tr></table></figure></p>
+<h3 id="序列化和反序列化二叉树"><a href="#序列化和反序列化二叉树" class="headerlink" title="序列化和反序列化二叉树"></a>序列化和反序列化二叉树</h3><p>思路：可用先序遍历把二叉树序列化到文件中，形式为字符串。再把字符串从文件中读取出来，反序列化为二叉树,方式也为先序遍历。把非空节点序列化为节点值+！（也可以为其它特殊节点，标识一个节点值的结束），把空节点标识为#！。</p>
+<p>代码如下：<br><figure class="highlight plain"><table><tr><td class="gutter"><pre><div class="line">1</div><div class="line">2</div><div class="line">3</div><div class="line">4</div><div class="line">5</div><div class="line">6</div><div class="line">7</div><div class="line">8</div><div class="line">9</div><div class="line">10</div><div class="line">11</div><div class="line">12</div><div class="line">13</div><div class="line">14</div><div class="line">15</div><div class="line">16</div><div class="line">17</div><div class="line">18</div><div class="line">19</div><div class="line">20</div><div class="line">21</div><div class="line">22</div><div class="line">23</div><div class="line">24</div><div class="line">25</div><div class="line">26</div><div class="line">27</div></pre></td><td class="code"><pre><div class="line">//序列化,把序列化后的字符串放到list中。</div><div class="line">public static void serialize(BinaryTreeNode node,ArrayList&lt;String&gt; list)&#123;</div><div class="line">		if(node != null)&#123;</div><div class="line">			list.add(node.getData()+&quot;!&quot;);</div><div class="line">			serialize(node.getLeft(), list);</div><div class="line">			serialize(node.getRight(), list);</div><div class="line">		&#125;else&#123;</div><div class="line">			list.add(&quot;#!&quot;);</div><div class="line">		&#125;</div><div class="line">	&#125;</div><div class="line">	</div><div class="line">//反序列化并返回根节点</div><div class="line">public static BinaryTreeNode deserialize(ArrayList&lt;String&gt; list)&#123;</div><div class="line">		if(list == null || list.size() == 0)&#123;</div><div class="line">			return null;</div><div class="line">		&#125;</div><div class="line">		String strdata = list.get(0);</div><div class="line">		list.remove(0);</div><div class="line">		if(strdata.equals(&quot;#!&quot;))&#123;</div><div class="line">			return null;</div><div class="line">		&#125;</div><div class="line">		int data = Integer.valueOf(strdata.substring(0, strdata.indexOf(&apos;!&apos;)));</div><div class="line">		BinaryTreeNode node = new BinaryTreeNode(data);</div><div class="line">		node.setLeft(deserialize(list));</div><div class="line">		node.setRight(deserialize(list));</div><div class="line">		return node;</div><div class="line">	&#125;</div></pre></td></tr></table></figure></p>
 
       
     </div>
@@ -419,7 +404,7 @@
       
         <div class="post-tags">
           
-            <a href="/tags/svn/" rel="tag"><i class="fa fa-tag"></i>svn</a>
+            <a href="/tags/算法/" rel="tag"><i class="fa fa-tag"></i>算法</a>
           
         </div>
       
@@ -432,8 +417,8 @@
         <div class="post-nav">
           <div class="post-nav-next post-nav-item">
             
-              <a href="/2017/11/21/桶式排序与基数排序/" rel="next" title="桶式排序与基数排序">
-                <i class="fa fa-chevron-left"></i> 桶式排序与基数排序
+              <a href="/2017/11/26/git常用命令/" rel="next" title="git常用命令">
+                <i class="fa fa-chevron-left"></i> git常用命令
               </a>
             
           </div>
@@ -442,8 +427,8 @@
 
           <div class="post-nav-prev post-nav-item">
             
-              <a href="/2017/11/26/git常用命令/" rel="prev" title="git常用命令">
-                git常用命令 <i class="fa fa-chevron-right"></i>
+              <a href="/2017/11/26/常见web安全问题/" rel="prev" title="常见web安全问题">
+                常见web安全问题 <i class="fa fa-chevron-right"></i>
               </a>
             
           </div>
@@ -641,7 +626,7 @@ var jiathis_config={
             
 
             
-              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#安装"><span class="nav-number">1.</span> <span class="nav-text">安装</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#建立版本库"><span class="nav-number">2.</span> <span class="nav-text">建立版本库</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#SVN服务"><span class="nav-number">3.</span> <span class="nav-text">SVN服务</span></a></li></ol></div>
+              <div class="post-toc-content"><ol class="nav"><li class="nav-item nav-level-3"><a class="nav-link" href="#二叉树从左到右顺序打印并换行"><span class="nav-number">1.</span> <span class="nav-text">二叉树从左到右顺序打印并换行</span></a></li><li class="nav-item nav-level-3"><a class="nav-link" href="#序列化和反序列化二叉树"><span class="nav-number">2.</span> <span class="nav-text">序列化和反序列化二叉树</span></a></li></ol></div>
             
 
           </div>
